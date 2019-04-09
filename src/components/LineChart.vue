@@ -6,13 +6,13 @@ import {Line} from 'vue-chartjs'
 export default {
   name: "LineChart",
   extends: Line,
+  props: ['options', 'chartData'],
   // mixins: [reactiveProp],
   data(){
     return{
       gradient: null
     }
   },
-  props: ['options', 'chartData'],
   created(){
   },
   mounted () {

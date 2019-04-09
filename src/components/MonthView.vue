@@ -1,39 +1,68 @@
 <template>
-  <div class="container" style="padding-top: 10px">
-  
-      <b-field label="Choose a month">
+  <div
+    class="container"
+    style="padding-top: 10px"
+  >
+    <b-field label="Choose a month">
       <b-select
+        v-model="targetMonth"
         size="is-medium"
         class="title is-3"
         placeholder="Select month"
-        v-model="targetMonth"
       >
-        <option v-for="(month, index) in months" :value="month" :key="index">{{ month }}</option>
+        <option
+          v-for="(month, index) in months"
+          :key="index"
+          :value="month"
+        >
+          {{ month }}
+        </option>
       </b-select>
     </b-field>
 
     <div class="tile is-ancestor">
       <div class="tile is-4 is-vertical is-parent">
         <div class="tile is-child box">
-          <p class="title is-3">{{targetMonth}}</p>
-          <p class="subtitle is-6">Overview for the month</p>
-          <h1 v-if="!isLoading" class="title is-1 has-text-primary" style="padding-top:10px">
-            {{totalVolume}}
+          <p class="title is-3">
+            {{ targetMonth }}
+          </p>
+          <p class="subtitle is-6">
+            Overview for the month
+          </p>
+          <h1
+            v-if="!isLoading"
+            class="title is-1 has-text-primary"
+            style="padding-top:10px"
+          >
+            {{ totalVolume }}
             <span class="title is-6">litres</span>
           </h1>
-          <div  v-for="obj in filteredOverviewItems" v-bind:key="obj.id">
-            <overview-table-item :overview-object="obj" v-on:get-inst-readings="getInstReadings" v-bind:enabled.sync="isLoadingInst"> </overview-table-item>
+          <div
+            v-for="obj in filteredOverviewItems"
+            :key="obj.id"
+          >
+            <month-view-table-item
+              :overview-object="obj"
+              :enabled.sync="isLoadingInst"
+              @get-inst-readings="getInstReadings"
+            />
           </div>
         </div>
       </div>
       <div class="tile is-parent">
         <div class="tile is-child box">
-          <p class="title">Pump Data</p>
-          <line-chart ref="chart" v-if="!isLoading"  v-bind:chart-data="chartData" v-bind:options="options"></line-chart>
+          <p class="title">
+            Pump Data
+          </p>
+          <line-chart
+            v-if="!isLoading"
+            ref="chart"
+            :chart-data="chartData"
+            :options="options"
+          />
         </div>
       </div>
     </div>
-    
   </div>
 </template>
 
@@ -47,6 +76,9 @@ export default {
   components: {
     LineChart,
     MonthViewTableItem
+  },
+  props: {
+    globalData: Array
   },
   data() {
     return {
@@ -89,28 +121,15 @@ export default {
           }
         ]
       },
+      bpsData: [],
       options: {
         responsive: true,
         maintainAspectRatio: false
       },
-      bpsData: [],
       filteredData: []
     };
   },
-  created() {
-    axios.get("http://james-tev.local:3010/api/overview_data").then(res => {
-      this.bpsData = res.data.data;
-      this.chartData.datasets[0].data = this.bpsData.map(
-        reading => reading.pump_volume
-      );
-      this.chartData.datasets[1].data = this.bpsData.map(
-        reading => reading.avg_flow_rate
-      );
-      this.formatChartDates();
-      this.targetMonth = this.months[new Date().getMonth()];
-      this.isLoading = false;
-    });
-  },
+
   computed: {
     totalVolume: function() {
       if (!this.isLoading) {
@@ -133,6 +152,20 @@ export default {
         });
       return this.filteredData;
     }
+  },
+  created() {
+    //the component will only be created once the main data is loaded in parent component. No worry of globalData not being loaded.
+    this.bpsData = this.globalData;
+    this.chartData.datasets[0].data = this.bpsData.map(
+      reading => reading.pump_volume
+    );
+    this.chartData.datasets[1].data = this.bpsData.map(
+      reading => reading.avg_flow_rate
+    );
+    this.formatChartDates();
+    this.targetMonth = this.months[new Date().getMonth()];
+    this.isLoading = false;
+    
   },
   methods: {
     formatChartDates() {

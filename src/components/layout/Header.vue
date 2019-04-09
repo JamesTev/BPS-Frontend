@@ -1,18 +1,21 @@
 <template>
-  <header class="header" style="color:white">
-  <section class="hero">
-    <div class="hero-body">
-      <div class="container">
-        <h1 class="title">
-          BPS Dashboard
-        </h1>
-        <h2 class="subtitle">
-          Borehole pump system
-        </h2>
+  <header
+    class="header"
+    style="color:white"
+  >
+    <section class="hero">
+      <div class="hero-body">
+        <div class="container">
+          <h1 class="title">
+            BPS Dashboard
+          </h1>
+          <h2 class="subtitle">
+            Borehole pump system
+          </h2>
+        </div>
       </div>
-    </div>
-  </section>  
-</header>
+    </section>  
+  </header>
 </template>
 
 <script>

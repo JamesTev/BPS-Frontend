@@ -1,9 +1,13 @@
 <template>
   <div id="app">
-    <Header></Header>
-    <b-loading :is-full-page="fullPage" :active.sync="isLoading" :can-cancel="false"></b-loading>
-    <tab-view-section></tab-view-section>
-    <Footer></Footer>
+    <Header />
+    <b-loading
+      :is-full-page="fullPage"
+      :active.sync="isLoading"
+      :can-cancel="false"
+    />
+    <tab-view-section />
+    <Footer />
   </div>
 </template>
 
@@ -14,7 +18,7 @@ import TabViewSection from './components/TabViewSection.vue'
 import Footer from './components/layout/Footer.vue'
 
 export default {
-  name: 'app',
+  name: 'App',
   components: {
     Header, TabViewSection, Footer
   },
