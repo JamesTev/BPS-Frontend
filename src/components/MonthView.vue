@@ -20,7 +20,59 @@
       </b-select>
     </b-field>
 
-    <div class="tile is-ancestor">
+    <b-collapse class="card" aria-id="contentIdForA11y3" >
+            <div
+                slot="trigger" 
+                slot-scope="props"
+                class="card-header"
+                role="button"
+                aria-controls="contentIdForA11y3">
+                <p class="card-header-title">
+                    Overview Stats
+                </p>
+                <a class="card-header-icon">
+                    <b-icon
+                        :icon="props.open ? 'menu-down' : 'menu-up'">
+                    </b-icon>
+                </a>
+            </div>
+            
+            <div class="card-content">
+                <div class="content">
+                    <div class="tile is-ancestor" style="padding-top: 10px; padding-bottom; 10px">
+                      <div class="tile is-4 is-vertical is-parent">
+                        <p class="subtitle is-4">
+                            Total Volume</p>
+                        <h1
+                        class="title is-1 has-text-primary">
+                        {{ totalVolume }}
+                        <span class="title is-6">litres</span>
+                        </h1>
+                      </div>
+
+                      <div class="tile is-4 is-vertical is-parent">
+                        <p class="subtitle is-4">
+                            Total Duration</p>
+                        <h1
+                        class="title is-1 has-text-primary">
+                        {{ totalDuration }}
+                        <span class="title is-6">mins</span>
+                        </h1>
+                      </div>
+
+                      <div class="tile is-vertical is-parent">
+                        <p class="subtitle is-4">
+                            Avg Flow
+                          </p>
+                      </div>
+                    </div>
+
+                </div>
+            </div>
+            
+    </b-collapse>
+
+    <div class="tile is-ancestor" style="padding-top:30px">
       <div class="tile is-4 is-vertical is-parent">
         <div class="tile is-child box">
           <p class="title is-3">
@@ -29,14 +81,7 @@
           <p class="subtitle is-6">
             Overview for the month
           </p>
-          <h1
-            v-if="!isLoading"
-            class="title is-1 has-text-primary"
-            style="padding-top:10px"
-          >
-            {{ totalVolume }}
-            <span class="title is-6">litres</span>
-          </h1>
+          
           <div
             v-for="obj in filteredOverviewItems"
             :key="obj.id"
@@ -137,6 +182,12 @@ export default {
       }
       return 0;
     },
+    totalDuration: function() {
+      if (!this.isLoading) {
+        return this.filteredData.reduce((sum, d) => sum + d.pump_duration, 0);
+      }
+      return 0;
+    },
     filteredOverviewItems: function() {
       //let currentMonth = (new Date()).getMonth()+1;
       this.filteredData = this.bpsData
@@ -203,4 +254,9 @@ export default {
 </script>
 
 <style scoped>
+
+b-collapse{
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
 </style>
