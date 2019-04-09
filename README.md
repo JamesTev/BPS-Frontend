@@ -1,4 +1,4 @@
-# vue_todo_list
+# BPS Frotend
 
 ## Project setup
 ```
