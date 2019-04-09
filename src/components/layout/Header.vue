@@ -7,7 +7,7 @@
           BPS Dashboard
         </h1>
         <h2 class="subtitle">
-          Borehole pump system IoT solution
+          Borehole pump system
         </h2>
       </div>
     </div>

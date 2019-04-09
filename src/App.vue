@@ -2,7 +2,7 @@
   <div id="app">
     <Header></Header>
     <b-loading :is-full-page="fullPage" :active.sync="isLoading" :can-cancel="false"></b-loading>
-    <overview-section></overview-section>
+    <tab-view-section></tab-view-section>
     <Footer></Footer>
   </div>
 </template>
@@ -10,13 +10,13 @@
 <script>
 //import HelloWorld from './components/HelloWorld.vue'
 import Header from './components/layout/Header.vue'
-import OverviewSection from './components/OverviewSection.vue'
+import TabViewSection from './components/TabViewSection.vue'
 import Footer from './components/layout/Footer.vue'
 
 export default {
   name: 'app',
   components: {
-    Header, OverviewSection, Footer
+    Header, TabViewSection, Footer
   },
   data(){
     return {
