@@ -38,35 +38,39 @@
             </div>
             
             <div class="card-content">
-                <div class="content">
+                <div class="content has-text-centered">
                     <div class="tile is-ancestor" style="padding-top: 10px; padding-bottom; 10px">
                       <div class="tile is-4 is-vertical is-parent">
-                        <p class="subtitle is-4">
+                        <p class="heading is-1">
                             Total Volume</p>
-                        <h1
+                        <p
                         class="title is-1 has-text-primary">
                         {{ totalVolume }}
-                        <span class="title is-6">litres</span>
-                        </h1>
+                        </p>
+                        <p class="subtitle is-6">litres</p>
                       </div>
 
                       <div class="tile is-4 is-vertical is-parent">
-                        <p class="subtitle is-4">
+                        <p class="heading is-1">
                             Total Duration</p>
-                        <h1
+                        <p
                         class="title is-1 has-text-primary">
                         {{ totalDuration }}
-                        <span class="title is-6">mins</span>
-                        </h1>
+                        </p>
+                        <p class="subtitle is-6">minutes</p>
                       </div>
 
                       <div class="tile is-vertical is-parent">
-                        <p class="subtitle is-4">
-                            Avg Flow
-                          </p>
+                        <p class="heading is-1">
+                            Average Flow</p>
+                        <p
+                        class="title is-1 has-text-primary">
+                              345
+                        </p>
+                        <p class="subtitle is-6">ml/sec</p>
                       </div>
-                    </div>
 
+                    </div>
                 </div>
             </div>
             
