@@ -99,20 +99,26 @@
           <p class="title">
             Pump Data
           </p>
+            <p class="subtitle is-6">Interpolated volume and flow patterns</p>
           <line-chart
             v-if="!isLoading"
-            ref="chart"
+            ref="lineChart"
             :chart-data="chartData"
             :options="options"
           />
         </div>
       </div>
     </div>
+  <p class="title">Summary Data by Day</p>
+  <p class="subtitle is-6">Cumulative volume by day for {{targetMonth}}</p>
+  <month-bar-chart v-if="!isLoading" ref="barChart" :chartObject="barChartData"> </month-bar-chart>
+
   </div>
 </template>
 
 <script>
 import LineChart from "./LineChart.vue";
+import MonthBarChart from "./MonthBarChart.vue"
 import axios from "axios";
 import MonthViewTableItem from "./MonthViewTableItem.vue";
 
@@ -120,6 +126,7 @@ export default {
   name: "MonthView",
   components: {
     LineChart,
+    MonthBarChart,
     MonthViewTableItem
   },
   props: {
@@ -132,6 +139,8 @@ export default {
       isLoading: true,
       isLoadingInst: false,
       targetMonth: "January",
+      barData: [],
+      barLabels: [],
       months: [
         "January",
         "February",
@@ -202,6 +211,18 @@ export default {
           return obj;
         });
       return this.filteredData;
+    },
+    barChartData: function(){
+      let now = new Date();
+      var numDays = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate(); //num days in Month
+      var dataObj = {labels: Array(numDays).fill(1).map((x, y) => x + y), data: new Array(numDays).fill(0)}
+      this.filteredOverviewItems.forEach(el => {
+        let day = (new Date(el.timestamp)).getDate()-1; 
+        //remember there may be more than one pump record on a day
+        dataObj.data[day] = parseFloat(dataObj.data[day])+parseFloat(el.pump_volume);
+      })
+      console.log("updated bar data")
+      return dataObj;
     }
   },
   created() {
@@ -245,9 +266,9 @@ export default {
           this.chartData.datasets[0].data.push(element.inst_volume);
           this.chartData.labels.push(element.t_offset);
         });
-        this.$refs.chart._data._chart.update(); // ! WORKAROUND. TODO: figure out reactive property
+        this.$refs.lineChart._data._chart.update(); // ! WORKAROUND. TODO: figure out reactive property
         
-    }).finally(this.isLoadingInst = false)
+        }).finally(this.isLoadingInst = false)
     }
   }
 };

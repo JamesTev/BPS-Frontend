@@ -7,6 +7,7 @@
     <b-tabs
       v-model="activeTab"
       type="is-toggle"
+      class="dark-blue"
       expanded
     >
       <b-tab-item
