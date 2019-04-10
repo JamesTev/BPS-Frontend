@@ -36,7 +36,7 @@ export default {
     props: {
         overviewObject: Object,
         enabled: Boolean,
-        activeObj: Number
+        activeObj: Object
     },
     data() {
         return{

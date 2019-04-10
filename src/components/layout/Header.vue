@@ -6,14 +6,32 @@
     <section class="hero">
       <div class="hero-body">
         <div class="container">
-          <h1 class="title">
+
+          <article class="media">
+  
+        <div class="media-content">
+          <div class="content">
+           <h1 class="title is-2">
             BPS Dashboard
           </h1>
-          <h2 class="subtitle">
+          <p class="subtitle">
             Borehole pump system
-          </h2>
+          </p>
+          </div>
+        
+        </div>
+        <div class="media-right">
+          <p class="image is-128x128">
+            <img src="@/assets/BPS-logo.png">
+          </p>
+        </div>
+      </article>
+
+          
         </div>
       </div>
+
+      
     </section>  
   </header>
 </template>
@@ -25,9 +43,6 @@ export default {
 </script>
 
 <style scoped>
-  .header {
-    text-align: left;
-    padding: 5px;
-  }
+
 
 </style>

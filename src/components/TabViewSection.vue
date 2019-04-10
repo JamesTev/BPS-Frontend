@@ -1,12 +1,11 @@
 <template>
   <div
     class="container"
-    style="padding-top: 10px"
-  >
+    >
     <b-loading :is-full-page="true" :active.sync="showLoader" :can-cancel="true"></b-loading>
     <b-tabs
       v-model="activeTab"
-      type="is-toggle"
+      class="block"
       expanded
     >
     

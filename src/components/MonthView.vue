@@ -111,7 +111,7 @@
           <p class="title">
             Pump Data
           </p>
-            <p class="subtitle is-6">Interpolated volume and flow patterns for pump cycle on <strong> {{activeTableItem.formattedDate.charAt(0)}} {{targetMonth}}</strong></p>
+            <p class="subtitle is-6">Interpolated volume and flow patterns</p>
           <line-chart
             v-if="!isLoading"
             ref="lineChart"
@@ -151,7 +151,7 @@ export default {
       isLoading: true,
       isLoadingInst: false,
       targetMonth: "January",
-      activeTableItem: [],
+      activeTableItem: {},
       barData: [],
       barLabels: [],
       months: [
