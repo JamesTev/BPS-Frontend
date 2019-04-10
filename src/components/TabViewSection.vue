@@ -9,9 +9,11 @@
       type="is-toggle"
       expanded
     >
+    
       <b-tab-item
         label="Day"
         icon="google-photos"
+        class="has-text-white"
       />
       <b-tab-item
         label="Month"

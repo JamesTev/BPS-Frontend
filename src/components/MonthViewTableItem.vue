@@ -19,9 +19,9 @@
     <div class="level-right">
       <p class="level-item">
         <a
-          :disabled="enabled"
+          :disabled="enabled || activeObj.ID==overviewObject.ID"
           class="button is-success"
-          @click="$emit('get-inst-readings', overviewObject.ID)"
+          @click="$emit('get-inst-readings', overviewObject)"
         >view</a>
       </p>
     </div>
@@ -35,7 +35,8 @@ export default {
     name: "MonthViewTableItem",
     props: {
         overviewObject: Object,
-        enabled: Boolean
+        enabled: Boolean,
+        activeObj: Number
     },
     data() {
         return{

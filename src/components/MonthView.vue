@@ -93,9 +93,17 @@
             <month-view-table-item
               :overview-object="obj"
               :enabled.sync="isLoadingInst"
+              :activeObj = "activeTableItem"
               @get-inst-readings="getInstReadings"
             />
           </div>
+
+          <section>
+              <b-message type="is-dark-blue" :active="filteredOverviewItems.length == 0">
+                No data yet for {{targetMonth}} :(
+              </b-message>
+          </section>
+
         </div>
       </div>
       <div class="tile is-parent">
@@ -103,7 +111,7 @@
           <p class="title">
             Pump Data
           </p>
-            <p class="subtitle is-6">Interpolated volume and flow patterns</p>
+            <p class="subtitle is-6">Interpolated volume and flow patterns for pump cycle on <strong> {{activeTableItem.formattedDate.charAt(0)}} {{targetMonth}}</strong></p>
           <line-chart
             v-if="!isLoading"
             ref="lineChart"
@@ -143,6 +151,7 @@ export default {
       isLoading: true,
       isLoadingInst: false,
       targetMonth: "January",
+      activeTableItem: [],
       barData: [],
       barLabels: [],
       months: [
@@ -255,10 +264,10 @@ export default {
       let d = new Date(dateString);
       return d.getDate() + "/" + (d.getMonth() + 1);
     },
-    getInstReadings(overviewID){
+    getInstReadings(overviewObj){
       this.isLoadingInst = true;
-
-      axios.get(`http://james-tev.local:3010/api/inst_readings/${overviewID}`).then(res => {
+      this.activeTableItem = overviewObj;
+      axios.get(`http://james-tev.local:3010/api/inst_readings/${overviewObj.ID}`).then(res => {
         let d = res.data;
         console.log(res.data)
         this.chartData.datasets[0].data = []
