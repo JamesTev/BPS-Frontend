@@ -1,11 +1,6 @@
 <template>
   <div id="app">
     <Header />
-    <b-loading
-      :is-full-page="fullPage"
-      :active.sync="isLoading"
-      :can-cancel="false"
-    />
     <tab-view-section />
     <Footer />
   </div>
@@ -24,12 +19,32 @@ export default {
   },
   data(){
     return {
-      isLoading: false,
-      fullPage: true
+      ch1: this.$pnGetMessage('ch1', this.receptor)
     }
   },
-  created(){
-      
+  mounted(){
+    this.$pnSubscribe({ channels: ['ch1', 'ch2'], withPresence: true });
+    
+  },
+  methods: {
+    receptor(msg){
+       //msg.message = `sent - ${msg.message}`;
+       this.$snackbar.open({
+          message: 'New data received from BPS system',
+          type: 'is-success',
+          position: 'is-bottom-right',
+          actionText: 'View',
+          duration: 4000,
+          indefinite: false,
+          onAction: () => {
+              this.$toast.open({
+                  message: 'Action pressed',
+                  queue: false
+              })
+          }
+      })
+       console.log(msg.message);
+    }
   }
 }
 </script>

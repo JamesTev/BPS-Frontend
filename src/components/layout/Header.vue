@@ -3,8 +3,8 @@
     class="header"
     style="color:white"
   >
-    <section class="hero">
-      <div class="hero-body">
+    <section class="top">
+      <div class="">
         <div class="container">
 
           <article class="media">
@@ -45,5 +45,8 @@ export default {
 
 <style scoped>
 
+.top{
+  padding-top:3rem;
+}
 
 </style>

@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import App from './App.vue'
-//import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import PubNubVue from 'pubnub-vue';
 
 //import 'buefy/dist/buefy.css'
 Vue.config.productionTip = false
@@ -14,6 +14,10 @@ import './custom-styles.scss'
 Vue.use(Buefy, {
   defaultIconPack: 'fas'
 })
+Vue.use(PubNubVue, { 
+  subscribeKey: 'sub-c-353ccd88-5c41-11e9-94f2-3600c194fb1c', 
+  publishKey: 'pub-c-3a435a19-3855-453a-85c2-6df1ece3f54c' 
+});
 // import config from 'buefy/src/utils/config';
 // config.defaultIconPack = 'fas';
 
