@@ -1,6 +1,11 @@
 // Import Bulma's core
 @import "~bulma/sass/utilities/_all";
 
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400');
+@import url('https://fonts.googleapis.com/css?family=Muli');
+//@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans');
+
+$family-sans-serif: "Source Sans Pro",sans-serif;
 // Set your colors
 $primary: rgba(38, 239, 120, 1);
 $primary-invert: findColorInvert($primary);
@@ -23,12 +28,13 @@ $colors: (
     "twitter": ($twitter, $twitter-invert),
     "dark-blue": ($dark-blue, $dark-blue-invert)
 );
-
+//$family-sans-serif: "Roboto", sans-serif;
 // Links
 $link: $primary;
 $link-invert: $primary-invert;
 $link-focus-border: $primary;
 
+//@import "~fortawesome/fontawesome-free/css/fontawesome.css";
 // Import Bulma and Buefy styles
 @import "~bulma";
 @import "~buefy/src/scss/buefy";

@@ -32,7 +32,7 @@
                 </p>
                 <a class="card-header-icon">
                     <b-icon
-                        :icon="props.open ? 'menu-down' : 'menu-up'">
+                        :icon="props.open ? 'angle-down' : 'angle-up'">
                     </b-icon>
                 </a>
             </div>

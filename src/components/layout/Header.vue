@@ -12,8 +12,9 @@
         <div class="media-content">
           <div class="content">
            <h1 class="title is-2">
-            BPS Dashboard
+            BPS Dashboard 
           </h1>
+         
           <p class="subtitle">
             Borehole pump system
           </p>

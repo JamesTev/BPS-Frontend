@@ -11,16 +11,13 @@
     
       <b-tab-item
         label="Day"
-        icon="google-photos"
         class="has-text-white"
       />
       <b-tab-item
         label="Month"
-        icon="library-music"
       />
       <b-tab-item
         label="Year"
-        icon="video"
       />
     </b-tabs>
     <div v-show="activeTab == 1">
