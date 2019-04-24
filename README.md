@@ -1,4 +1,4 @@
-# BPS Frontend
+# BPS Frotend
 
 ## Project setup
 ```
