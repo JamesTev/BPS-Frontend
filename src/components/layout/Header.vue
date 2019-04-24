@@ -12,7 +12,7 @@
         <div class="media-content">
           <div class="content">
            <h1 class="title is-2">
-            BPS Dashboard 
+            <strong> BPS Dashboard </strong> 
           </h1>
          
           <p class="subtitle">

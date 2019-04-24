@@ -11,6 +11,7 @@
 import Header from './components/layout/Header.vue'
 import TabViewSection from './components/TabViewSection.vue'
 import Footer from './components/layout/Footer.vue'
+import config from '@/config.json'
 
 export default {
   name: 'App',
@@ -23,8 +24,7 @@ export default {
     }
   },
   mounted(){
-    this.$pnSubscribe({ channels: ['ch1', 'ch2'], withPresence: true });
-    
+    this.$pnSubscribe({ channels: ['ch1', 'ch2'], withPresence: true });    
   },
   methods: {
     receptor(msg){

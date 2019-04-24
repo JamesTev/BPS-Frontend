@@ -20,13 +20,13 @@
       </b-select>
     </b-field>
 
-    <b-collapse class="card" aria-id="contentIdForA11y3" >
+    <b-collapse class="card"  >
             <div
                 slot="trigger" 
                 slot-scope="props"
                 class="card-header"
                 role="button"
-                aria-controls="contentIdForA11y3">
+              >
                 <p class="card-header-title">
                     Overview Stats
                 </p>
@@ -40,7 +40,7 @@
             <div class="card-content">
                 <div class="content has-text-centered">
                     <div class="tile is-ancestor" style="padding-top: 10px; padding-bottom; 10px">
-                      <div class="tile is-4 is-vertical is-parent">
+                       <div class="tile is-4 is-vertical is-parent">
                         <p class="heading is-1">
                             Total Volume</p>
                         <p
@@ -106,7 +106,7 @@
 
         </div>
       </div>
-      <div class="tile is-parent">
+      <div class="tile is-8 is-parent">
         <div class="tile is-child box">
           <p class="title">
             Pump Data
@@ -133,6 +133,7 @@ import LineChart from "./LineChart.vue";
 import MonthBarChart from "./MonthBarChart.vue"
 import axios from "axios";
 import MonthViewTableItem from "./MonthViewTableItem.vue";
+import config from '@/config.json'
 
 export default {
   name: "MonthView",
@@ -234,7 +235,6 @@ export default {
         //remember there may be more than one pump record on a day
         dataObj.data[day] = parseFloat(dataObj.data[day])+parseFloat(el.pump_volume);
       })
-      console.log("updated bar data")
       return dataObj;
     }
   },
@@ -249,8 +249,7 @@ export default {
     );
     this.formatChartDates();
     this.targetMonth = this.months[new Date().getMonth()];
-    this.isLoading = false;
-    
+    this.isLoading = false;    
   },
   methods: {
     formatChartDates() {
@@ -267,7 +266,7 @@ export default {
     getInstReadings(overviewObj){
       this.isLoadingInst = true;
       this.activeTableItem = overviewObj;
-      axios.get(`http://james-tev.local:3010/api/inst_readings/${overviewObj.ID}`).then(res => {
+      axios.get(config.apiBaseURL+`api/inst_readings/${overviewObj.ID}`).then(res => {
         let d = res.data;
         console.log(res.data)
         this.chartData.datasets[0].data = []
@@ -279,7 +278,7 @@ export default {
           this.chartData.datasets[0].data.push(element.inst_volume);
           this.chartData.labels.push(element.t_offset);
         });
-        this.$refs.lineChart._data._chart.update(); // ! WORKAROUND. TODO: figure out reactive property
+        this.$refs.lineChart._data._chart.update(); // ! WORKAROUND. TODO: figure out reactive property. this works with barchart?
         
         }).finally(this.isLoadingInst = false)
     }

@@ -31,6 +31,7 @@
 <script>
 import MonthView from "./MonthView.vue";
 import axios from "axios";
+import config from '@/config.json';
 
 export default {
   name: "TabViewSection",
@@ -45,7 +46,7 @@ export default {
       }
   },
   created() {
-    axios.get("http://james-tev.local:3010/api/overview_data").then(res => {
+    axios.get(config.apiBaseURL+"api/overview_data").then(res => {
       this.bpsData = res.data.data;
       this.mainDataLoaded= true;
     });
