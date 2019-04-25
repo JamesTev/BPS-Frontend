@@ -40,38 +40,47 @@
             <div class="card-content">
                 <div class="content has-text-centered">
                     <div class="tile is-ancestor" style="padding-top: 10px; padding-bottom; 10px">
-                       <div class="tile is-4 is-vertical is-parent">
+                      <div class="tile is-1 is-vertical is-parent v-centre">
+                        <a :disabled="overviewStatsIdx == 0" @click="statsShiftDisplay(0)" class="button rounded"><b-icon icon="arrow-left"></b-icon></a>
+                      </div>
+                       <div class="tile is-3 is-vertical is-parent">
                         <p class="heading is-1">
                             Total Volume</p>
                         <p
                         class="title is-1 has-text-primary">
-                        {{ totalVolume }}
+                        {{ parseFloat(totalVolume).toFixed(1) }}
                         </p>
-                        <p class="subtitle is-6">litres</p>
+                        <p class="subtitle is-6">{{overviewStatsDisplay[0]}}</p>
                       </div>
 
-                      <div class="tile is-4 is-vertical is-parent">
+                      <div class="tile is-3 is-vertical is-parent">
                         <p class="heading is-1">
                             Total Duration</p>
                         <p
                         class="title is-1 has-text-primary">
-                        {{ totalDuration }}
+                        {{ parseFloat(totalDuration).toFixed(1)  }}
                         </p>
-                        <p class="subtitle is-6">minutes</p>
+                        <p class="subtitle is-6">{{overviewStatsDisplay[1]}}</p>
                       </div>
 
-                      <div class="tile is-vertical is-parent">
+                      <div class="tile is-3 is-vertical is-parent">
                         <p class="heading is-1">
                             Average Flow</p>
                         <p
                         class="title is-1 has-text-primary">
                               345
                         </p>
-                        <p class="subtitle is-6">ml/sec</p>
+                        <p class="subtitle is-6">{{overviewStatsDisplay[2]}}</p>
                       </div>
+                       <div class="tile is-1 is-vertical is-parent v-centre">
+                          <a :disabled="overviewStatsIdx == (metrics.length-3)" @click="statsShiftDisplay(1)" class="button rounded"> <b-icon icon="arrow-right"></b-icon></a>
+                      </div>
+
+                
 
                     </div>
                 </div>
+                
             </div>
             
     </b-collapse>
@@ -110,7 +119,12 @@
         <div class="tile is-child box">
           <p class="title">
             Pump Data <span style="float:right">
-              <b-tag :class="dateTimeTagClass" size="is-medium"><strong>{{activeTableItem.formattedDate}}</strong> at <strong>{{activeTableItem.formattedTime}}</strong></b-tag></span>
+              <b-taglist attached>
+                  <b-tag type="is-dark-blue">{{activeTableItem.formattedDate}}</b-tag>
+                  <b-tag type="">{{activeTableItem.formattedTime}}</b-tag>
+              </b-taglist>
+              <!-- <b-tag :class="dateTimeTagClass" size="is-medium"><strong>{{activeTableItem.formattedDate}}</strong> at <strong>{{activeTableItem.formattedTime}}</strong></b-tag> -->
+              </span>
           </p>
             <p class="subtitle is-6">Interpolated volume and flow patterns
             </p>
@@ -122,7 +136,9 @@
         </div>
       </div>
     </div>
-  <p class="title">Summary Data by Day 
+  
+  <div id="summary-graph-section" class="section"> 
+    <p class="title">Summary Data by Day 
     <span style="float:right"> 
     <b-field>
             <b-radio-button v-model="summaryGraphType"
@@ -141,14 +157,12 @@
             </b-radio-button>
     </b-field>
     </span>
-  
   </p>
-  <p class="subtitle is-6">Cumulative volume by day for {{targetMonth}}</p>
-    
-  <month-bar-chart v-if="!isLoading && summaryGraphType=='bar'" ref="barChart" :chartObject="barChartData"> </month-bar-chart>
-
-  <month-pie-chart v-if="!isLoading && summaryGraphType=='pie'" ref="pieChart" :chartObject="pieChartData"> </month-pie-chart>
-
+    <p class="subtitle is-6">Cumulative volume by day for {{targetMonth}}</p>
+    <month-bar-chart v-if="!isLoading && summaryGraphType=='bar'" ref="barChart" :chartObject="barChartData"> </month-bar-chart>
+    <month-pie-chart v-if="!isLoading && summaryGraphType=='pie'" ref="pieChart" :chartObject="pieChartData"> </month-pie-chart>
+  </div>
+  
   </div>
 </template>
 
@@ -181,6 +195,8 @@ export default {
       targetMonth: "January",
       activeTableItem: {},
       summaryGraphType: "bar",
+      metrics: ["litres", "minutes", "ml/sec", "watts", "ml", "seconds"],
+      overviewStatsIdx: 2,
       barData: [],
       barLabels: [],
       dateTimeTagClass: "",
@@ -277,6 +293,9 @@ export default {
       })
       pieData.colours = generatePalette("#f9f8eb","#11df63", n)
       return pieData;
+    },
+    overviewStatsDisplay: function(){
+      return this.metrics.slice(this.overviewStatsIdx, this.overviewStatsIdx+3)
     }
   },
   created() {
@@ -329,13 +348,27 @@ export default {
         }).finally(this.isLoadingInst = false)
         this.dateTimeTagClass = "is-success"
         setTimeout(() => {this.dateTimeTagClass = ""}, 100)
+    },
+    statsShiftDisplay(dir=0){
+      var delta = 0
+      if(dir==0){ //shift left
+        this.overviewStatsIdx > 0 ? delta = -1 : delta = 0
+      }
+      else{
+        this.overviewStatsIdx < (this.metrics.length-3) ? delta = +1 : delta = 0
+      }
+      this.overviewStatsIdx += delta
     }
   }
 };
 </script>
 
 <style scoped>
-
+.v-centre {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 b-collapse{
   padding-top: 20px;
   padding-bottom: 20px;

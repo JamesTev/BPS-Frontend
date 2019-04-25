@@ -18,14 +18,16 @@ export default {
               display: true,
               scaleLabel: {
                 display: true,
-                labelString: 'Time [s]'
+                labelString: 'Time [s]',
+                fontSize: 14
               }
             }],
             yAxes: [{
               display: true,
               scaleLabel: {
                 display: true,
-                labelString: 'Measurand'
+                labelString: 'Measurand',
+                fontSize: 14
               }
             }]
         }

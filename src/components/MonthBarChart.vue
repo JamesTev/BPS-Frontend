@@ -29,14 +29,16 @@ export default {
 						display: true,
 						scaleLabel: {
 							display: true,
-							labelString: 'Day of the Month'
-						}
+              labelString: 'Day of the Month',
+              fontSize: 14
+            },
 					}],
 					yAxes: [{
 						display: true,
 						scaleLabel: {
 							display: true,
-							labelString: 'Cumulative Volume'
+              labelString: 'Cumulative Volume',
+              fontSize: 14
 						}
 					}]
 		  }
