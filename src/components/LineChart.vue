@@ -6,11 +6,31 @@ import {Line} from 'vue-chartjs'
 export default {
   name: "LineChart",
   extends: Line,
-  props: ['options', 'chartData'],
+  props: ['chartData'],
   // mixins: [reactiveProp],
   data(){
     return{
-      gradient: null
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            xAxes: [{
+              display: true,
+              scaleLabel: {
+                display: true,
+                labelString: 'Time [s]'
+              }
+            }],
+            yAxes: [{
+              display: true,
+              scaleLabel: {
+                display: true,
+                labelString: 'Measurand'
+              }
+            }]
+        }
+      }
+
     }
   },
   created(){

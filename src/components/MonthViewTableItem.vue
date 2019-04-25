@@ -12,7 +12,7 @@
       </div> -->
       <div class="tile is-vertical">
         <p class="heading is-1" style="padding-bottom:5px">          
-          Records for <strong>{{ overviewObject.formattedDate }}</strong>
+          <strong>{{ overviewObject.formattedDate }}</strong> at <strong>{{ overviewObject.formattedTime }}</strong>
         </p>
       
         <p class="subtitle is-6">

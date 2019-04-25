@@ -94,7 +94,7 @@
               :overview-object="obj"
               :enabled.sync="isLoadingInst"
               :activeObj = "activeTableItem"
-              @get-inst-readings="getInstReadings"
+              @get-inst-readings="populateInstReadingsGraph"
             />
           </div>
 
@@ -109,21 +109,45 @@
       <div class="tile is-8 is-parent">
         <div class="tile is-child box">
           <p class="title">
-            Pump Data
+            Pump Data <span style="float:right">
+              <b-tag :class="dateTimeTagClass" size="is-medium"><strong>{{activeTableItem.formattedDate}}</strong> at <strong>{{activeTableItem.formattedTime}}</strong></b-tag></span>
           </p>
-            <p class="subtitle is-6">Interpolated volume and flow patterns</p>
+            <p class="subtitle is-6">Interpolated volume and flow patterns
+            </p>
           <line-chart
             v-if="!isLoading"
             ref="lineChart"
             :chart-data="chartData"
-            :options="options"
           />
         </div>
       </div>
     </div>
-  <p class="title">Summary Data by Day</p>
+  <p class="title">Summary Data by Day 
+    <span style="float:right"> 
+    <b-field>
+            <b-radio-button v-model="summaryGraphType"
+                native-value="bar"
+                type="is-success"
+                >
+                <b-icon icon="signal"></b-icon>
+                <span> </span>
+            </b-radio-button>
+
+            <b-radio-button v-model="summaryGraphType"
+                native-value="pie"
+                type="is-success">
+                <b-icon icon="chart-pie"></b-icon>
+                <span> </span>
+            </b-radio-button>
+    </b-field>
+    </span>
+  
+  </p>
   <p class="subtitle is-6">Cumulative volume by day for {{targetMonth}}</p>
-  <month-bar-chart v-if="!isLoading" ref="barChart" :chartObject="barChartData"> </month-bar-chart>
+    
+  <month-bar-chart v-if="!isLoading && summaryGraphType=='bar'" ref="barChart" :chartObject="barChartData"> </month-bar-chart>
+
+  <month-pie-chart v-if="!isLoading && summaryGraphType=='pie'" ref="pieChart" :chartObject="pieChartData"> </month-pie-chart>
 
   </div>
 </template>
@@ -131,15 +155,18 @@
 <script>
 import LineChart from "./LineChart.vue";
 import MonthBarChart from "./MonthBarChart.vue"
+import MonthPieChart from "./MonthPieChart.vue"
 import axios from "axios";
 import MonthViewTableItem from "./MonthViewTableItem.vue";
 import config from '@/config.json'
+import {generatePalette} from '@/colours.js'
 
 export default {
   name: "MonthView",
   components: {
     LineChart,
     MonthBarChart,
+    MonthPieChart,
     MonthViewTableItem
   },
   props: {
@@ -153,8 +180,10 @@ export default {
       isLoadingInst: false,
       targetMonth: "January",
       activeTableItem: {},
+      summaryGraphType: "bar",
       barData: [],
       barLabels: [],
+      dateTimeTagClass: "",
       months: [
         "January",
         "February",
@@ -190,10 +219,6 @@ export default {
         ]
       },
       bpsData: [],
-      options: {
-        responsive: true,
-        maintainAspectRatio: false
-      },
       filteredData: []
     };
   },
@@ -221,7 +246,9 @@ export default {
           ); //(new Date()).getMonth();
         })
         .map(obj => {
-          obj.formattedDate = this.formatDate(obj.timestamp);
+          var formattedTS = this.formatDate(obj.timestamp)
+          obj.formattedDate = formattedTS[0];
+          obj.formattedTime = formattedTS[1];
           return obj;
         });
       return this.filteredData;
@@ -236,39 +263,58 @@ export default {
         dataObj.data[day] = parseFloat(dataObj.data[day])+parseFloat(el.pump_volume);
       })
       return dataObj;
+    },
+    pieChartData: function(){
+      var monthData = this.barChartData
+      var pieData = {labels: [], data: [], colours: []}
+      var n = 0;
+      monthData.data.forEach((d, idx) => {
+        if (d > 0){
+          pieData.data.push(d)
+          pieData.labels.push(monthData.labels[idx])
+          n++
+        }
+      })
+      pieData.colours = generatePalette("#f9f8eb","#11df63", n)
+      return pieData;
     }
   },
   created() {
     //the component will only be created once the main data is loaded in parent component. No worry of globalData not being loaded.
     this.bpsData = this.globalData;
-    this.chartData.datasets[0].data = this.bpsData.map(
-      reading => reading.pump_volume
-    );
-    this.chartData.datasets[1].data = this.bpsData.map(
-      reading => reading.avg_flow_rate
-    );
     this.formatChartDates();
     this.targetMonth = this.months[new Date().getMonth()];
+
+    var overviewRecords = this.filteredOverviewItems
+    if(overviewRecords.length > 0){
+        console.log(overviewRecords)
+        this.populateInstReadingsGraph(overviewRecords[overviewRecords.length-1])  
+    }
     this.isLoading = false;    
   },
   methods: {
     formatChartDates() {
       let datesArr = this.bpsData.map(obj => obj.timestamp);
       datesArr = datesArr.map(date => {
-        return this.formatDate(date);
+        return this.formatDate(date)[0];
       });
       this.chartData.labels = datesArr;
     },
     formatDate(dateString) {
       let d = new Date(dateString);
-      return d.getDate() + "/" + (d.getMonth() + 1);
+      var df = d.getDate() + "/" + (d.getMonth() + 1);
+      var t = d.toLocaleTimeString().substring(0,5);
+      return [df,t];
     },
-    getInstReadings(overviewObj){
+    populateInstReadingsGraph(overviewObj){
       this.isLoadingInst = true;
       this.activeTableItem = overviewObj;
+
+      var formattedDate = this.formatDate(this.activeTableItem.timestamp);
+      this.activeTableItem.formattedDate = formattedDate[0]
+      this.activeTableItem.formattedTime = formattedDate[1]
       axios.get(config.apiBaseURL+`api/inst_readings/${overviewObj.ID}`).then(res => {
         let d = res.data;
-        console.log(res.data)
         this.chartData.datasets[0].data = []
         this.chartData.datasets[1].data = []
         this.chartData.labels = []
@@ -281,6 +327,8 @@ export default {
         this.$refs.lineChart._data._chart.update(); // ! WORKAROUND. TODO: figure out reactive property. this works with barchart?
         
         }).finally(this.isLoadingInst = false)
+        this.dateTimeTagClass = "is-success"
+        setTimeout(() => {this.dateTimeTagClass = ""}, 100)
     }
   }
 };
