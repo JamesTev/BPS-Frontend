@@ -51,7 +51,7 @@ export default {
 
  <style>
 #app {
-  font-family: 'Muli', sans-serif;
+  /* font-family: 'Muli', sans-serif; */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;

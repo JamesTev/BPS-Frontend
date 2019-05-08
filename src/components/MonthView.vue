@@ -85,35 +85,41 @@
             
     </b-collapse>
 
-    <div class="tile is-ancestor" style="padding-top:30px">
-      <div class="tile is-4 is-vertical is-parent">
-        <div class="tile is-child box">
-          <p class="title is-3">
-            {{ targetMonth }}
-          </p>
-          <p class="subtitle is-6">
-            Overview for the month
-          </p>
+    <div class="tile is-ancestor" style="padding-top:30px;" >
+      <div class="tile is-4 is-vertical is-parent" >
+
+          <div class="tile is-child box">
+
+            <p class="title is-3">
+              {{ targetMonth }}
+            </p>
+            <p class="subtitle is-6">
+              Overview for the month
+            </p>
           
-          <div
-            v-for="obj in filteredOverviewItems"
-            :key="obj.id"
-          >
-            <month-view-table-item
-              :overview-object="obj"
-              :enabled.sync="isLoadingInst"
-              :activeObj = "activeTableItem"
-              @get-inst-readings="populateInstReadingsGraph"
-            />
+           <vue-custom-scrollbar class="scroll-area"  :settings="scrollSettings">
+             <div
+              v-for="obj in filteredOverviewItems"
+              :key="obj.id"
+            >
+              <month-view-table-item
+                :overview-object="obj"
+                :enabled.sync="isLoadingInst"
+                :activeObj = "activeTableItem"
+                @get-inst-readings="populateInstReadingsGraph"
+              />
+            </div>
+          </vue-custom-scrollbar>
+            
+
+            <section>
+                <b-message type="is-dark-blue" :active="filteredOverviewItems.length == 0">
+                  No data yet for {{targetMonth}} :(
+                </b-message>
+            </section>
+
           </div>
-
-          <section>
-              <b-message type="is-dark-blue" :active="filteredOverviewItems.length == 0">
-                No data yet for {{targetMonth}} :(
-              </b-message>
-          </section>
-
-        </div>
+        
       </div>
       <div class="tile is-8 is-parent">
         <div class="tile is-child box">
@@ -170,6 +176,7 @@
 import LineChart from "./LineChart.vue";
 import MonthBarChart from "./MonthBarChart.vue"
 import MonthPieChart from "./MonthPieChart.vue"
+import vueCustomScrollbar from 'vue-custom-scrollbar'
 import axios from "axios";
 import MonthViewTableItem from "./MonthViewTableItem.vue";
 import config from '@/config.json'
@@ -181,7 +188,8 @@ export default {
     LineChart,
     MonthBarChart,
     MonthPieChart,
-    MonthViewTableItem
+    MonthViewTableItem,
+    vueCustomScrollbar
   },
   props: {
     globalData: Array
@@ -195,10 +203,13 @@ export default {
       targetMonth: "January",
       activeTableItem: {},
       summaryGraphType: "bar",
-      metrics: ["litres", "minutes", "ml/sec", "watts", "ml", "seconds"],
-      overviewStatsIdx: 2,
+      metrics: ["litres", "minutes", "ml/sec"],
+      overviewStatsIdx: 0,
       barData: [],
       barLabels: [],
+      scrollSettings: {
+        maxScrollbarLength: 80
+      },
       dateTimeTagClass: "",
       months: [
         "January",
@@ -215,7 +226,6 @@ export default {
         "December"
       ],
       chartData: {
-        //labels: ['January', 'February', 'March', 'April'],
         labels: [],
         datasets: [
           {
@@ -339,9 +349,9 @@ export default {
         this.chartData.labels = []
 
         d.forEach((element) => {
-          this.chartData.datasets[1].data.push(element.inst_flow_rate)
-          this.chartData.datasets[0].data.push(element.inst_volume);
-          this.chartData.labels.push(element.t_offset);
+          this.chartData.datasets[1].data.push(element.inst_flow_rate) //inst_flow
+          this.chartData.datasets[0].data.push(element.inst_volume); //inst_vol
+          this.chartData.labels.push(element.t_offset); //t_offset
         });
         this.$refs.lineChart._data._chart.update(); // ! WORKAROUND. TODO: figure out reactive property. this works with barchart?
         
@@ -373,4 +383,11 @@ b-collapse{
   padding-top: 20px;
   padding-bottom: 20px;
 }
+
+.scroll-area {
+  position: relative;
+  margin: auto;
+  height: 400px;
+}
+
 </style>
