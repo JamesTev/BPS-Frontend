@@ -1,5 +1,5 @@
 {
-    "apiBaseURL":"http://james-tev.local:3010/",
+    "apiBaseURL":"http://35.197.216.3:3010/",
     "pieChartColourPalette": [
         "rgb(184, 233, 148)", "rgb(120, 224, 143)", "rgb(56, 173, 169)"
     ]
