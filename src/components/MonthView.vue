@@ -144,7 +144,7 @@
     </div>
   
   <div id="summary-graph-section" class="section"> 
-    <p class="title">Summary Data by Day 
+    <p class="title">Data by Day of the Month
     <span style="float:right"> 
     <b-field>
             <b-radio-button v-model="summaryGraphType"
@@ -232,13 +232,15 @@ export default {
             label: "Volume [l]",
             borderColor: "#555F80",
             backgroundColor: "#555F80",
+            yAxisID: "y-axis-vol",
             data: [],
             fill: false
           },
           {
-            label: "Flow [ml/s]",
-            borderColor: "#26EF78",
+            label: "Flow [l/hr]",
+            yAxisID: "y-axis-flow",
             backgroundColor: "#26EF78",
+            borderColor: "#26EF78",
             data: [],
             fill: false
           }
@@ -258,7 +260,7 @@ export default {
     },
     totalDuration: function() {
       if (!this.isLoading) {
-        return this.filteredData.reduce((sum, d) => sum + d.pump_duration, 0);
+        return this.filteredData.reduce((sum, d) => sum + d.pump_duration/60, 0);
       }
       return 0;
     },

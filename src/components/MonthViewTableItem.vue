@@ -16,7 +16,7 @@
         </p>
       
         <p class="subtitle is-6">
-                <strong> {{ overviewObject.pump_volume }}</strong>  litres over <strong>{{ overviewObject.pump_duration }}</strong> mins
+                <strong> {{ parseFloat(overviewObject.pump_volume).toFixed(2) }}</strong>  litres over <strong>{{ parseFloat(overviewObject.pump_duration/60).toFixed(2) }}</strong> mins
         </p>
                 
       </div>

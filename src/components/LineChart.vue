@@ -24,12 +24,23 @@ export default {
             }],
             yAxes: [{
               display: true,
+              position: "left",
+              id: "y-axis-vol",
               scaleLabel: {
                 display: true,
-                labelString: 'Measurand',
+                labelString: 'Volume [l]',
+                fontSize: 14
+              }},
+              {
+              display: true,
+              position: "right",
+              id: "y-axis-flow",
+              scaleLabel: {
+                display: true,
+                labelString: 'Flow Rate [l/hr]',
                 fontSize: 14
               }
-            }]
+              }]
         }
       }
 
