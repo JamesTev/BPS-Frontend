@@ -18,8 +18,12 @@ export default {
               display: true,
               scaleLabel: {
                 display: true,
-                labelString: 'Time [s]',
+                labelString: 'Time [m:s]',
                 fontSize: 14
+              },
+              ticks: {
+                autoSkip: true,
+                maxTicksLimit: 40
               }
             }],
             yAxes: [{
@@ -37,7 +41,7 @@ export default {
               id: "y-axis-flow",
               scaleLabel: {
                 display: true,
-                labelString: 'Flow Rate [l/hr]',
+                labelString: 'Flow Rate [l/min]',
                 fontSize: 14
               }
               }]
