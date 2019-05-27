@@ -99,7 +99,7 @@
                         <b-icon icon="caret-down"></b-icon>
                     </button>
 
-                    <!-- <b-dropdown-item aria-role="listitem" class="has-text-weight-light" :click="initLoadingProcess()">Delete items</b-dropdown-item> -->
+                    <b-dropdown-item aria-role="listitem" class="has-text-weight-light" >Reload items</b-dropdown-item>
                 </b-dropdown>
               </span>
             </p>
@@ -221,7 +221,8 @@ export default {
       barData: [],
       barLabels: [],
       scrollSettings: {
-        maxScrollbarLength: 80
+        maxScrollbarLength: 80,
+        suppressScrollX: true
       },
       dateTimeTagClass: "",
       months: [
@@ -374,10 +375,8 @@ export default {
           this.chartData.labels.push(this.tOffsetFormat(element.t_offset)); //t_offset
         });
         this.$refs.lineChart._data._chart.update(); // ! WORKAROUND. TODO: figure out reactive property. this works with barchart?
-        
         }).finally(this.isLoadingInst = false)
-        this.dateTimeTagClass = "is-success"
-        setTimeout(() => {this.dateTimeTagClass = ""}, 100)
+       
     },
     statsShiftDisplay(dir=0){
       var delta = 0
@@ -398,8 +397,7 @@ export default {
       if ((formatted_str.length - formatted_str.indexOf(':')) < 3 )
       {
         formatted_str += "0" //to fix times like 3:0 to 3:00
-      }
-      
+      } 
       return formatted_str
     }, 
     deleteRecord(overviewObj){
@@ -419,7 +417,7 @@ export default {
       //   alert("Record deleted!")
       //   })
     },
-    mqBinding: function(breakSize, classOptions){
+    mqBinding(breakSize, classOptions){
       var sizeClasses = {'sm':0, 'md':1, 'lg':2}
       return Object.keys(sizeClasses).indexOf(this.$mq) > sizeClasses[breakSize] ? classOptions[0]: classOptions[1]
     }
