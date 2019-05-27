@@ -22,4 +22,4 @@ let pubnub = "";
         })
     }
   
-    publishSampleMessage();
+    publishSampleMessage({title:"Hello", description:"Message test"});

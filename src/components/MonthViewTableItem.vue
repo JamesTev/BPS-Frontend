@@ -14,7 +14,8 @@
       </div>
       <div class="tile is-3 is-parent">
         <div class="tile is-child" style="float:right">
-          <a
+          <a 
+          v-if = "activeButtonType == 'view'"
           :disabled="enabled || activeObj.ID==overviewObject.ID"
           class="button is-success"
           :class="$mq=='lg' ? '' : 'is-small'"
@@ -22,10 +23,18 @@
            >
           view
         </a>
-        </div>
+        <a
+          v-if = "activeButtonType == 'delete'"
+          class="button is-danger"
+          :class="$mq=='lg' ? '' : 'is-small'"
+          style="float:right"
+          @click="$emit('delete-record', overviewObject)"
+           >
+          <b-icon class="is-small" icon="trash-alt"></b-icon>
+        </a>
       </div>
     </div>
-     
+  </div>
 
 </template>
 
@@ -41,7 +50,7 @@ export default {
     },
     data() {
         return{
-            
+            activeButtonType: 'delete'
         }
     }
 }

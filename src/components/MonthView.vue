@@ -92,6 +92,16 @@
 
             <p class="title is-3 is-size-4-mobile">
               {{ targetMonth }}
+              <span style="float:right">
+                <b-dropdown aria-role="list">
+                    <button class="button" slot="trigger">
+                        <span>Tools</span>
+                        <b-icon icon="caret-down"></b-icon>
+                    </button>
+
+                    <!-- <b-dropdown-item aria-role="listitem" class="has-text-weight-light" :click="initLoadingProcess()">Delete items</b-dropdown-item> -->
+                </b-dropdown>
+              </span>
             </p>
             <p class="subtitle is-6 is-size-7-mobile has-text-weight-light">
               Overview for the month
@@ -107,6 +117,7 @@
                 :enabled.sync="isLoadingInst"
                 :activeObj = "activeTableItem"
                 @get-inst-readings="populateInstReadingsGraph"
+                @delete-record="deleteRecord"
               />
             </div>
           </vue-custom-scrollbar>
@@ -153,7 +164,7 @@
                 :size="$mq=='lg' ? 'is-medium' : 'is-small'"
                 >
                 <b-icon icon="signal"></b-icon>
-                <span> </span>
+                
             </b-radio-button>
 
             <b-radio-button v-model="summaryGraphType"
@@ -161,7 +172,7 @@
                 type="is-success"
                 :size="$mq=='lg' ? 'is-medium' : 'is-small'">
                 <b-icon icon="chart-pie"></b-icon>
-                <span> </span>
+              
             </b-radio-button>
     </b-field>
     </span>
@@ -281,6 +292,7 @@ export default {
           obj.formattedTime = formattedTS[1];
           return obj;
         });
+      this.filteredData = this.filteredData.reverse()
       return this.filteredData;
     },
     barChartData: function(){
@@ -315,18 +327,21 @@ export default {
   },
   created() {
     //the component will only be created once the main data is loaded in parent component. No worry of globalData not being loaded.
-    this.bpsData = this.globalData;
-    this.formatChartDates();
-    this.targetMonth = this.months[new Date().getMonth()];
-
-    var overviewRecords = this.filteredOverviewItems
-    if(overviewRecords.length > 0){
-        console.log(overviewRecords)
-        this.populateInstReadingsGraph(overviewRecords[overviewRecords.length-1])  
-    }
-    this.isLoading = false;    
+    this.initLoadingProcess()
   },
   methods: {
+    initLoadingProcess(){
+      this.bpsData = this.globalData;
+      this.formatChartDates();
+      this.targetMonth = this.months[new Date().getMonth()];
+
+      var overviewRecords = this.filteredOverviewItems
+      if(overviewRecords.length > 0){
+          console.log(overviewRecords)
+          this.populateInstReadingsGraph(overviewRecords[0])  
+      }
+      this.isLoading = false; 
+    },
     formatChartDates() {
       let datesArr = this.bpsData.map(obj => obj.timestamp);
       datesArr = datesArr.map(date => {
@@ -387,6 +402,23 @@ export default {
       
       return formatted_str
     }, 
+    deleteRecord(overviewObj){
+     
+      this.$dialog.confirm({
+          title: 'Deleting record',
+          message: 'Are you sure you want to <b>delete</b> your account? This action cannot be undone.',
+          confirmText: 'Delete',
+          type: 'is-danger',
+          hasIcon: true,
+          onConfirm: () => this.$toast.open('Account deleted!')
+      })
+            
+      // axios.delete(config.apiBaseURL+`api/${overviewObj.ID}`).then(res => {
+      //   let d = res.data;
+      //   this.initLoadingProcess(); //reload data
+      //   alert("Record deleted!")
+      //   })
+    },
     mqBinding: function(breakSize, classOptions){
       var sizeClasses = {'sm':0, 'md':1, 'lg':2}
       return Object.keys(sizeClasses).indexOf(this.$mq) > sizeClasses[breakSize] ? classOptions[0]: classOptions[1]

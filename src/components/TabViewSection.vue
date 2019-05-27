@@ -22,13 +22,13 @@
     </b-tabs>
     <div v-show="activeTab == 1">
         <div v-if="bpsData.length > 0">
-            <month-view :globalData="bpsData"></month-view>
+            <month-view ref="monthViewComponent" :globalData="bpsData"></month-view>
         </div>
         <div v-else class="flex-center">
           <div class="media-center">
           <p class="title is-3 is-size-5-mobile has-text-centered">We couldn't get your data</p>
-          <p class="subtitle is-6  is-size-7-mobile has-text-centered">No connection to the BPS database</p>
-          <p class="image" :style="$mq == 'sm' ? 'height:200px; width: 200px': 'height:200px; width: 400px'">
+          <p class="subtitle is-6  is-size-7-mobile has-text-centered has-text-weight-light">No connection to the BPS database</p>
+          <p class="image" :style="$mq == 'sm' ? 'height:200px; width: 200px': 'height:400px; width: 400px'">
             <img src="@/assets/sad.svg">
           </p>
           </div>
@@ -51,7 +51,8 @@ export default {
     return {
       activeTab: 1,
       bpsData: [],
-      loadingComplete: false
+      loadingComplete: false,
+      ch1: this.$pnGetMessage('ch1', this.receptor)
       }
   },
   created() {
@@ -66,10 +67,26 @@ export default {
       this.loadingComplete= true;
     })
   },
+  mounted(){
+    this.$pnSubscribe({ channels: ['ch1', 'ch2'], withPresence: true });    
+  },
   computed:{
       showLoader(){
           return !this.loadingComplete;
       }
+  },
+  methods: {
+    receptor(msg){
+       //msg.message = `sent - ${msg.message}`;
+       this.$toast.open({
+          message: 'Receiving new data from BPS...',
+          duration:4000,
+          queue: false
+       })
+       this.$refs.monthViewComponent.isLoading = true
+       this.$refs.monthViewComponent.initLoadingProcess()
+       console.log(msg.message);
+    }
   }
 }
 </script>
