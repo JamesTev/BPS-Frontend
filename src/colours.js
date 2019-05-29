@@ -70,7 +70,7 @@ function processHEX(val) {
     ]
 }
 
-var generatePalette = function(startCol, endCol, n) {
+var generateSubPalette = function(startCol, endCol, n) {
     //attach start value
   
     var col1 = {value: startCol}
@@ -118,16 +118,29 @@ var generatePalette = function(startCol, endCol, n) {
   //build div representation of gradient
     return colors;
   }
-  /**
-   * padding function:
-   * cba to roll my own, thanks Pointy!
-   * ==================================
-   * source: http://stackoverflow.com/questions/10073699/pad-a-number-with-leading-zeros-in-javascript
-   */
-    function pad(n, width, z) {
-      z = z || '0';
-      n = n + '';
-      return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-    }
 
-  export {generatePalette};
+  function pad(n, width, z) {
+    z = z || '0';
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+  }
+
+
+
+var generatePalette = function(n){
+  var palette = []
+  var colourPairs = [["#f9f8eb","#11df63"], ["#f9f8eb","#4b5471"], ["#f9f8eb","#0c6f83"], ["#f9f8eb","#098667"]]
+  var base = 8 // number for colours for each colour range
+
+  while(n > 0){
+    var c = colourPairs.shift()
+    generateSubPalette(c[0], c[1], Math.min(base, n)).forEach((el) => {
+      palette.push(el)
+    })
+    n-=base
+  }
+  console.log(palette)
+  return palette
+}
+
+export {generatePalette};

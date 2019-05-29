@@ -11,7 +11,7 @@
   
         <div class="media-content">
           <div class="content">
-           <h1 class="title is-2 is-size-4-mobile has-text-weight-bold" :class="$mq">
+           <h1 class="title is-2 is-size-3-mobile has-text-weight-bold" :class="$mq">
             <strong> BPS Dashboard </strong> 
           </h1>
          
@@ -22,7 +22,7 @@
         
         </div>
         <div class="media-right">
-          <p class="image" :class="$mq == 'lg' ? 'is-128x128' : 'is-64x64'">
+          <p class="image" :class="$mq == 'lg' ? 'is-128x128' : 'is-96x96'">
             <img src="@/assets/BPS-logo.png">
           </p>
         </div>

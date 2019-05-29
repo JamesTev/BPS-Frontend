@@ -6,7 +6,7 @@
     <b-field label="Choose a month">
       <b-select
         v-model="targetMonth"
-        :size="$mq=='lg' ? 'is-medium' : 'is-small'"
+        size="is-medium"
         class="title is-3"
         placeholder="Select month"
       >
@@ -68,7 +68,7 @@
                             Average Flow</p>
                         <p
                         class="title is-1 has-text-primary">
-                              345
+                              {{ parseFloat(volWeightedFlowAverage).toFixed(1)  }}
                         </p>
                         <p class="subtitle is-6">{{overviewStatsDisplay[2]}}</p>
                       </div>
@@ -90,7 +90,7 @@
 
           <div :class="mqBinding('sm', ['box', 'mobile-padding'])">
 
-            <p class="title is-3 is-size-4-mobile">
+            <p class="title is-3 is-size-3-mobile">
               {{ targetMonth }}
               <span style="float:right">
                 <b-dropdown aria-role="list">
@@ -134,7 +134,7 @@
       </div>
       <div class="tile is-8 is-parent">
         <div class="tile is-child" :class="mqBinding('sm', ['box', 'mobile-padding'])">
-          <p class="title is-size-4-mobile">
+          <p class="title is-size-3-mobile">
             Pump Data <span style="float:right">
               <b-taglist attached>
                   <b-tag type="is-dark-blue">{{activeTableItem.formattedDate}}</b-tag>
@@ -144,6 +144,9 @@
               </span>
           </p>
             <p class="subtitle is-6 is-size-7-mobile has-text-weight-light">Interpolated volume and flow patterns
+              <span style="float:right">
+                <b-checkbox size="is-small" :value="truncateZeroFlow" type="is-dark-blue">Truncate zero flow</b-checkbox>
+              </span>
             </p>
           <line-chart
             v-if="!isLoading"
@@ -155,7 +158,7 @@
     </div>
   
   <div id="summary-graph-section" class="section" v-if="filteredOverviewItems.length > 0"> 
-    <p class="title is-size-5-mobile">Data by Day
+    <p class="title is-size-3-mobile">Data by Day
     <span style="float:right"> 
     <b-field >
             <b-radio-button v-model="summaryGraphType"
@@ -219,6 +222,7 @@ export default {
       metrics: ["litres", "minutes", "l/min"],
       overviewStatsIdx: 0,
       barData: [],
+      truncateZeroFlow: true,
       barLabels: [],
       scrollSettings: {
         maxScrollbarLength: 80,
@@ -278,6 +282,13 @@ export default {
       }
       return 0;
     },
+    volWeightedFlowAverage: function (){
+      if (!this.isLoading) {
+        var weightedSum = this.filteredData.reduce((sum, d) => sum +d.pump_volume*d.avg_flow_rate, 0)
+        return weightedSum/this.totalVolume
+      }
+      return 0;
+    },
     filteredOverviewItems: function() {
       //let currentMonth = (new Date()).getMonth()+1;
       this.filteredData = this.bpsData
@@ -318,7 +329,7 @@ export default {
           n++
         }
       })
-      pieData.colours = generatePalette("#f9f8eb","#11df63", n)
+      pieData.colours = generatePalette(n)
       return pieData;
     },
     overviewStatsDisplay: function(){
@@ -353,7 +364,7 @@ export default {
     formatDate(dateString) {
       let d = new Date(dateString);
       var df = d.getDate() + "/" + (d.getMonth() + 1);
-      var t = d.toLocaleTimeString().substring(0,5);
+      var t = d.toLocaleTimeString('default', {hour12:false}).substring(0,5);
       return [df,t];
     },
     populateInstReadingsGraph(overviewObj){
@@ -364,17 +375,8 @@ export default {
       this.activeTableItem.formattedDate = formattedDate[0]
       this.activeTableItem.formattedTime = formattedDate[1]
       axios.get(config.apiBaseURL+`api/inst_readings/${overviewObj.ID}`).then(res => {
-        let d = res.data;
-        this.chartData.datasets[0].data = []
-        this.chartData.datasets[1].data = []
-        this.chartData.labels = []
-
-        d.forEach((element) => {
-          this.chartData.datasets[1].data.push(element.inst_flow_rate) //inst_flow
-          this.chartData.datasets[0].data.push(element.inst_volume); //inst_vol
-          this.chartData.labels.push(this.tOffsetFormat(element.t_offset)); //t_offset
-        });
-        this.$refs.lineChart._data._chart.update(); // ! WORKAROUND. TODO: figure out reactive property. this works with barchart?
+        this.updateLineGraph(res.data)
+        
         }).finally(this.isLoadingInst = false)
        
     },
@@ -387,6 +389,22 @@ export default {
         this.overviewStatsIdx < (this.metrics.length-3) ? delta = +1 : delta = 0
       }
       this.overviewStatsIdx += delta
+    },
+    updateLineGraph(d){
+      this.chartData.datasets[0].data = []
+      this.chartData.datasets[1].data = []
+      this.chartData.labels = []
+      var c = 0
+      d.forEach((element) => {
+        if(this.truncateZeroFlow && parseFloat(element.inst_flow_rate) < 0.5 && c==(d.length - 1)){
+          return; // skip iteration
+        }
+        this.chartData.datasets[1].data.push(element.inst_flow_rate) //inst_flow
+        this.chartData.datasets[0].data.push(element.inst_volume); //inst_vol
+        this.chartData.labels.push(this.tOffsetFormat(element.t_offset)); //t_offset
+        c+= 1
+      });
+      this.$refs.lineChart._data._chart.update(); // ! WORKAROUND. TODO: figure out reactive property. this works with barchart?
     },
     tOffsetFormat(t){
       //t_offset string supplied as t in form of number of seconds. This function returns a formatted minutes:secons version
