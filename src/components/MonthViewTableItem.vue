@@ -6,14 +6,16 @@
           <p class="heading is-5 has-text-weight-light" >          
             <strong>{{ overviewObject.formattedDate }}</strong> at <strong>{{ overviewObject.formattedTime }}</strong>
           </p>
-          <p class="subtitle is-6 is-size-6-mobile">
+          <p class="subtitle is-6 is-size-7-mobile">
             <strong> {{ parseFloat(overviewObject.pump_volume).toFixed(2) }}</strong>  litres over <strong>{{ parseFloat(overviewObject.pump_duration/60).toFixed(2) }}</strong> mins
+            <span v-if="overviewObject.hasOwnProperty('trickleData')" >*</span>
           </p>
+        
         </div>
         
       </div>
       <div class="tile is-3 is-parent">
-        <div class="tile is-child" style="float:right; padding-right:20px">
+        <div class="tile is-child v-centre" style="float:right; padding-right:20px">
           <a 
           v-if = "activeButtonType == 'view'"
           :disabled="enabled || activeObj.ID==overviewObject.ID"
@@ -60,6 +62,12 @@ export default {
     .level{
         padding-top:10px;
         padding-bottom:10px;
+    }
+
+    .v-centre{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
 </style>

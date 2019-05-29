@@ -125,11 +125,9 @@ var generateSubPalette = function(startCol, endCol, n) {
     return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
   }
 
-
-
 var generatePalette = function(n){
   var palette = []
-  var colourPairs = [["#f9f8eb","#11df63"], ["#f9f8eb","#4b5471"], ["#f9f8eb","#0c6f83"], ["#f9f8eb","#098667"]]
+  var colourPairs = [["#f9f8eb","#11df63"], ["#f9f8eb","#0c6f83"], ["#f9f8eb","#4b5471"], ["#f9f8eb","#098667"]]
   var base = 8 // number for colours for each colour range
 
   while(n > 0){
@@ -139,7 +137,6 @@ var generatePalette = function(n){
     })
     n-=base
   }
-  console.log(palette)
   return palette
 }
 

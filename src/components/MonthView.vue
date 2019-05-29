@@ -145,7 +145,7 @@
           </p>
             <p class="subtitle is-6 is-size-7-mobile has-text-weight-light">Interpolated volume and flow patterns
               <span style="float:right">
-                <b-checkbox size="is-small" :value="truncateZeroFlow" type="is-dark-blue">Truncate zero flow</b-checkbox>
+                <b-checkbox size="is-small" v-model="truncateZeroFlow" @click.native="updateLineGraph(activeTableItemReadings)" type="is-dark-blue">Truncate zero flow</b-checkbox>
               </span>
             </p>
           <line-chart
@@ -218,12 +218,14 @@ export default {
       isLoadingInst: false,
       targetMonth: "January",
       activeTableItem: {},
+      activeTableItemReadings: {},
       summaryGraphType: "bar",
       metrics: ["litres", "minutes", "l/min"],
       overviewStatsIdx: 0,
       barData: [],
       truncateZeroFlow: true,
       barLabels: [],
+      trickleThresholdLitres: 3,
       scrollSettings: {
         maxScrollbarLength: 80,
         suppressScrollX: true
@@ -265,33 +267,32 @@ export default {
         ]
       },
       bpsData: [],
-      filteredData: []
     };
   },
 
   computed: {
     totalVolume: function() {
       if (!this.isLoading) {
-        return this.filteredData.reduce((sum, d) => sum + d.pump_volume, 0);
+        return this.filteredOverviewItems.reduce((sum, d) => sum + d.pump_volume, 0);
       }
       return 0;
     },
     totalDuration: function() {
       if (!this.isLoading) {
-        return this.filteredData.reduce((sum, d) => sum + d.pump_duration/60, 0);
+        return this.filteredOverviewItems.reduce((sum, d) => sum + d.pump_duration/60, 0);
       }
       return 0;
     },
     volWeightedFlowAverage: function (){
       if (!this.isLoading) {
-        var weightedSum = this.filteredData.reduce((sum, d) => sum +d.pump_volume*d.avg_flow_rate, 0)
+        var weightedSum = this.filteredOverviewItems.reduce((sum, d) => sum +d.pump_volume*d.avg_flow_rate, 0)
         return weightedSum/this.totalVolume
       }
       return 0;
     },
     filteredOverviewItems: function() {
       //let currentMonth = (new Date()).getMonth()+1;
-      this.filteredData = this.bpsData
+      var filteredData = this.bpsData
         .filter(obj => {
           let d = new Date(obj.timestamp);
           return (
@@ -304,8 +305,22 @@ export default {
           obj.formattedTime = formattedTS[1];
           return obj;
         });
-      this.filteredData = this.filteredData.reverse()
-      return this.filteredData;
+      
+      var trickleFilteredData = []
+
+      filteredData.forEach((obj, idx) => {
+        if(obj.pump_volume < this.trickleThresholdLitres && trickleFilteredData.length > 0){
+          trickleFilteredData[trickleFilteredData.length-1].trickleData = { //attach trickle data to previous reading
+            duration: obj.pump_duration,
+            volume: obj.pump_volume,
+            timestamp: obj.timestamp
+          }
+          return // don't add this to normal readings
+        }
+        trickleFilteredData.push(obj)
+      })
+      trickleFilteredData = trickleFilteredData.reverse()
+      return trickleFilteredData;
     },
     barChartData: function(){
       let now = new Date();
@@ -376,6 +391,7 @@ export default {
       this.activeTableItem.formattedTime = formattedDate[1]
       axios.get(config.apiBaseURL+`api/inst_readings/${overviewObj.ID}`).then(res => {
         this.updateLineGraph(res.data)
+        this.activeTableItemReadings = res.data
         
         }).finally(this.isLoadingInst = false)
        
@@ -391,10 +407,13 @@ export default {
       this.overviewStatsIdx += delta
     },
     updateLineGraph(d){
+      console.log("Updating line graph "+this.truncateZeroFlow)
       this.chartData.datasets[0].data = []
       this.chartData.datasets[1].data = []
       this.chartData.labels = []
       var c = 0
+      d = (Array.isArray(d)) ? d : [d]
+
       d.forEach((element) => {
         if(this.truncateZeroFlow && parseFloat(element.inst_flow_rate) < 0.5 && c==(d.length - 1)){
           return; // skip iteration
