@@ -1,153 +1,220 @@
 <template>
   <div
     class="container"
-    style="padding-top: 10px"
+    style="padding-top: 10px; padding-left:10px"
   >
-    <b-field label="Choose a month">
-      <b-select
-        v-model="targetMonth"
-        size="is-medium"
-        class="title is-3"
-        placeholder="Select month"
-      >
-        <option
-          v-for="(month, index) in months"
-          :key="index"
-          :value="month"
+    <b-loading
+      :is-full-page="true"
+      :active.sync="isLoading"
+      :can-cancel="true"
+    />
+
+    <div class="field is-grouped is-grouped-left">
+      <p class="control">
+        <b-select
+          v-model="targetMonth"
+          size="is-medium"
+          class="title is-3"
+          placeholder="Select month"
         >
-          {{ month }}
-        </option>
-      </b-select>
-    </b-field>
+          <option
+            v-for="(month, index) in months"
+            :key="index"
+            :value="month"
+          >
+            {{ month }}
+          </option>
+        </b-select>
+      </p>
+      <p class="control">
+        <b-select
+          v-model="targetYear"
+          size="is-medium"
+          class="title is-3"
+          placeholder="Select month"
+        >
+          <option
+            v-for="(y, index) in Array((new Date()).getFullYear()-2019+1).fill(1).map((x, y) => x + y + 2019 -1)"
+            :key="index"
+            :value="y"
+          >
+            {{ y }}
+          </option>
+        </b-select>
+      </p>
+    </div>
+  
+    
 
-    <b-collapse class="card"  >
-            <div
-                slot="trigger" 
-                slot-scope="props"
-                class="card-header"
-                role="button"
+    <b-collapse class="card">
+      <div
+        slot="trigger" 
+        slot-scope="props"
+        class="card-header"
+        role="button"
+      >
+        <p class="card-header-title">
+          Overview Stats
+        </p>
+        <a class="card-header-icon">
+          <b-icon
+            :icon="props.open ? 'angle-down' : 'angle-up'"
+          />
+        </a>
+      </div>
+            
+      <div class="card-content">
+        <div class="content has-text-centered">
+          <div
+            class="tile is-ancestor"
+            style="padding-top: 10px; padding-bottom; 10px"
+          >
+            <div class="tile is-1 is-vertical is-parent v-centre">
+              <a
+                :disabled="overviewStatsIdx == 0"
+                class="button rounded"
+                @click="statsShiftDisplay(0)"
+              ><b-icon icon="arrow-left" /></a>
+            </div>
+            <div class="tile is-3 is-vertical is-parent">
+              <p class="heading is-1">
+                Total Volume
+              </p>
+              <p
+                class="title is-1 has-text-primary"
               >
-                <p class="card-header-title">
-                    Overview Stats
-                </p>
-                <a class="card-header-icon">
-                    <b-icon
-                        :icon="props.open ? 'angle-down' : 'angle-up'">
-                    </b-icon>
-                </a>
+                {{ parseFloat(totalVolume).toFixed(1) }}
+              </p>
+              <p class="subtitle is-6">
+                {{ overviewStatsDisplay[0] }}
+              </p>
             </div>
-            
-            <div class="card-content">
-                <div class="content has-text-centered">
-                    <div class="tile is-ancestor" style="padding-top: 10px; padding-bottom; 10px">
-                      <div class="tile is-1 is-vertical is-parent v-centre">
-                        <a :disabled="overviewStatsIdx == 0" @click="statsShiftDisplay(0)" class="button rounded"><b-icon icon="arrow-left"></b-icon></a>
-                      </div>
-                       <div class="tile is-3 is-vertical is-parent">
-                        <p class="heading is-1">
-                            Total Volume</p>
-                        <p
-                        class="title is-1 has-text-primary">
-                        {{ parseFloat(totalVolume).toFixed(1) }}
-                        </p>
-                        <p class="subtitle is-6">{{overviewStatsDisplay[0]}}</p>
-                      </div>
 
-                      <div class="tile is-3 is-vertical is-parent">
-                        <p class="heading is-1">
-                            Total Duration</p>
-                        <p
-                        class="title is-1 has-text-primary">
-                        {{ parseFloat(totalDuration).toFixed(1)  }}
-                        </p>
-                        <p class="subtitle is-6">{{overviewStatsDisplay[1]}}</p>
-                      </div>
-
-                      <div class="tile is-3 is-vertical is-parent">
-                        <p class="heading is-1">
-                            Average Flow</p>
-                        <p
-                        class="title is-1 has-text-primary">
-                              {{ parseFloat(volWeightedFlowAverage).toFixed(1)  }}
-                        </p>
-                        <p class="subtitle is-6">{{overviewStatsDisplay[2]}}</p>
-                      </div>
-                       <div class="tile is-1 is-vertical is-parent v-centre">
-                          <a :disabled="overviewStatsIdx == (metrics.length-3)" @click="statsShiftDisplay(1)" class="button rounded"> <b-icon icon="arrow-right"></b-icon></a>
-                      </div>
-
-                
-
-                    </div>
-                </div>
-                
+            <div class="tile is-3 is-vertical is-parent">
+              <p class="heading is-1">
+                Total Duration
+              </p>
+              <p
+                class="title is-1 has-text-primary"
+              >
+                {{ parseFloat(totalDuration).toFixed(1) }}
+              </p>
+              <p class="subtitle is-6">
+                {{ overviewStatsDisplay[1] }}
+              </p>
             </div>
-            
+
+            <div class="tile is-3 is-vertical is-parent">
+              <p class="heading is-1">
+                Average Flow
+              </p>
+              <p
+                class="title is-1 has-text-primary"
+              >
+                {{ parseFloat(volWeightedFlowAverage).toFixed(1) }}
+              </p>
+              <p class="subtitle is-6">
+                {{ overviewStatsDisplay[2] }}
+              </p>
+            </div>
+            <div class="tile is-1 is-vertical is-parent v-centre">
+              <a
+                :disabled="overviewStatsIdx == (metrics.length-3)"
+                class="button rounded"
+                @click="statsShiftDisplay(1)"
+              > <b-icon icon="arrow-right" /></a>
+            </div>
+          </div>
+        </div>
+      </div>
     </b-collapse>
 
-    <div class="tile is-ancestor" style="padding-top:30px;" >
-      <div class="tile is-4 is-vertical is-parent" >
+    <div
+      class="tile is-ancestor"
+      style="padding-top:30px;"
+    >
+      <div class="tile is-4 is-vertical is-parent">
+        <div :class="mqBinding('sm', ['box', 'mobile-padding'])">
+          <p class="title is-3 is-size-3-mobile">
+            {{ targetMonth }} 
+            <!-- <span style="float:right">
+              <b-dropdown aria-role="list">
+                <button
+                  slot="trigger"
+                  class="button"
+                >
+                  <span>Tools</span>
+                  <b-icon icon="caret-down" />
+                </button>
 
-          <div :class="mqBinding('sm', ['box', 'mobile-padding'])">
-
-            <p class="title is-3 is-size-3-mobile">
-              {{ targetMonth }}
-              <span style="float:right">
-                <b-dropdown aria-role="list">
-                    <button class="button" slot="trigger">
-                        <span>Tools</span>
-                        <b-icon icon="caret-down"></b-icon>
-                    </button>
-
-                    <b-dropdown-item aria-role="listitem" class="has-text-weight-light" >Reload items</b-dropdown-item>
-                </b-dropdown>
-              </span>
-            </p>
-            <p class="subtitle is-6 is-size-7-mobile has-text-weight-light">
-              Overview for the month
-            </p>
+                <b-dropdown-item
+                  aria-role="listitem"
+                  class="has-text-weight-light"
+                >Reload items</b-dropdown-item>
+              </b-dropdown>
+            </span> -->
+          </p>
+          <p class="subtitle is-6 is-size-7-mobile has-text-weight-light">
+            Overview for the month
+          </p>
           
-           <vue-custom-scrollbar v-if="filteredOverviewItems.length > 0" class="scroll-area"  :settings="scrollSettings">
-             <div
+          <vue-custom-scrollbar
+            v-if="filteredOverviewItems.length > 0"
+            class="scroll-area"
+            :settings="scrollSettings"
+          >
+            <div
               v-for="obj in filteredOverviewItems"
               :key="obj.id"
             >
               <month-view-table-item
                 :overview-object="obj"
                 :enabled.sync="isLoadingInst"
-                :activeObj = "activeTableItem"
+                :data-loading="isLoadingInst"
+                :active-obj="activeTableItem"
                 @get-inst-readings="populateInstReadingsGraph"
+                @edit-note="editNote"
                 @delete-record="deleteRecord"
               />
             </div>
           </vue-custom-scrollbar>
             
 
-            <section>
-                <b-message type="is-dark-blue" :active="filteredOverviewItems.length == 0">
-                  No data yet for {{targetMonth}} :(
-                </b-message>
-            </section>
-
-          </div>
-        
+          <section>
+            <b-message
+              type="is-dark-blue"
+              :active="filteredOverviewItems.length == 0"
+            >
+              No data yet for {{ targetMonth }} {{targetYear}} :(
+            </b-message>
+          </section>
+        </div>
       </div>
       <div class="tile is-8 is-parent">
-        <div class="tile is-child" :class="mqBinding('sm', ['box', 'mobile-padding'])">
+        <div
+          class="tile is-child"
+          :class="mqBinding('sm', ['box', 'mobile-padding'])"
+        >
           <p class="title is-size-3-mobile">
             Pump Data <span style="float:right">
               <b-taglist attached>
-                  <b-tag type="is-dark-blue">{{activeTableItem.formattedDate}}</b-tag>
-                  <b-tag type="">{{activeTableItem.formattedTime}}</b-tag>
+                <b-tag type="is-dark-blue">{{ activeTableItem.formattedDate }}</b-tag>
+                <b-tag type="">{{ activeTableItem.formattedTime }}</b-tag>
               </b-taglist>
               <!-- <b-tag :class="dateTimeTagClass" size="is-medium"><strong>{{activeTableItem.formattedDate}}</strong> at <strong>{{activeTableItem.formattedTime}}</strong></b-tag> -->
-              </span>
+            </span>
           </p>
-            <p class="subtitle is-6 is-size-7-mobile has-text-weight-light">Interpolated volume and flow patterns
-              <span style="float:right">
-                <b-checkbox size="is-small" v-model="truncateZeroFlow" @click.native="updateLineGraph(activeTableItemReadings)" type="is-dark-blue">Truncate zero flow</b-checkbox>
-              </span>
-            </p>
+          <p class="subtitle is-6 is-size-7-mobile has-text-weight-light">
+            Interpolated volume and flow patterns
+            <span style="float:right">
+              <b-checkbox
+                v-model="truncateZeroFlow"
+                size="is-small"
+                type="is-dark-blue"
+                @click.native="updateLineGraph(activeTableItemReadings)"
+              >Truncate zero flow</b-checkbox>
+            </span>
+          </p>
           <line-chart
             v-if="!isLoading"
             ref="lineChart"
@@ -157,34 +224,51 @@
       </div>
     </div>
   
-  <div id="summary-graph-section" class="section" v-if="filteredOverviewItems.length > 0"> 
-    <p class="title is-size-3-mobile">Data by Day
-    <span style="float:right"> 
-    <b-field >
-            <b-radio-button v-model="summaryGraphType"
-                native-value="bar"
-                type="is-success"
-                :size="$mq=='lg' ? 'is-medium' : 'is-small'"
-                >
-                <b-icon icon="signal"></b-icon>
+    <div
+      v-if="filteredOverviewItems.length > 0"
+      id="summary-graph-section"
+      class="section"
+    > 
+      <p class="title is-size-3-mobile">
+        Data by Day
+        <span style="float:right"> 
+          <b-field>
+            <b-radio-button
+              v-model="summaryGraphType"
+              native-value="bar"
+              type="is-success"
+              :size="$mq=='lg' ? 'is-medium' : 'is-small'"
+            >
+              <b-icon icon="signal" />
                 
             </b-radio-button>
 
-            <b-radio-button v-model="summaryGraphType"
-                native-value="pie"
-                type="is-success"
-                :size="$mq=='lg' ? 'is-medium' : 'is-small'">
-                <b-icon icon="chart-pie"></b-icon>
+            <b-radio-button
+              v-model="summaryGraphType"
+              native-value="pie"
+              type="is-success"
+              :size="$mq=='lg' ? 'is-medium' : 'is-small'"
+            >
+              <b-icon icon="chart-pie" />
               
             </b-radio-button>
-    </b-field>
-    </span>
-  </p>
-    <p class="subtitle is-6 is-size-7-mobile has-text-weight-light">Cumulative volume by day for {{targetMonth}}</p>
-    <month-bar-chart v-if="!isLoading && summaryGraphType=='bar'" ref="barChart" :chartObject="barChartData"> </month-bar-chart>
-    <month-pie-chart v-if="!isLoading && summaryGraphType=='pie'" ref="pieChart" :chartObject="pieChartData"> </month-pie-chart>
-  </div>
-  
+          </b-field>
+        </span>
+      </p>
+      <p class="subtitle is-6 is-size-7-mobile has-text-weight-light">
+        Cumulative volume by day for {{ targetMonth }}
+      </p>
+      <month-bar-chart
+        v-if="!isLoading && summaryGraphType=='bar'"
+        ref="barChart"
+        :chart-object="barChartData"
+      />
+      <month-pie-chart
+        v-if="!isLoading && summaryGraphType=='pie'"
+        ref="pieChart"
+        :chart-object="pieChartData"
+      />
+    </div>
   </div>
 </template>
 
@@ -198,6 +282,8 @@ import MonthViewTableItem from "./MonthViewTableItem.vue";
 import config from '@/config.json'
 import {generatePalette} from '@/colours.js'
 
+import { Toast } from 'buefy/dist/components/toast';
+
 export default {
   name: "MonthView",
   components: {
@@ -207,9 +293,6 @@ export default {
     MonthViewTableItem,
     vueCustomScrollbar
   },
-  props: {
-    globalData: Array
-  },
   data() {
     return {
       showGraph: true,
@@ -217,6 +300,7 @@ export default {
       isLoading: true,
       isLoadingInst: false,
       targetMonth: "January",
+      targetYear: 0,
       activeTableItem: {},
       activeTableItemReadings: {},
       summaryGraphType: "bar",
@@ -286,20 +370,13 @@ export default {
     volWeightedFlowAverage: function (){
       if (!this.isLoading) {
         var weightedSum = this.filteredOverviewItems.reduce((sum, d) => sum +d.pump_volume*d.avg_flow_rate, 0)
-        return weightedSum/this.totalVolume
+        return this.totalVolume > 0 ? weightedSum/this.totalVolume : 0
       }
       return 0;
     },
     filteredOverviewItems: function() {
       //let currentMonth = (new Date()).getMonth()+1;
-      var filteredData = this.bpsData
-        .filter(obj => {
-          let d = new Date(obj.timestamp);
-          return (
-            d.getMonth() == this.months.findIndex(e => e == this.targetMonth)
-          ); //(new Date()).getMonth();
-        })
-        .map(obj => {
+      var formattedData = this.bpsData.map(obj => {
           var formattedTS = this.formatDate(obj.timestamp)
           obj.formattedDate = formattedTS[0];
           obj.formattedTime = formattedTS[1];
@@ -308,7 +385,7 @@ export default {
       
       var trickleFilteredData = []
 
-      filteredData.forEach((obj, idx) => {
+      formattedData.forEach((obj) => {
         if(obj.pump_volume < this.trickleThresholdLitres && trickleFilteredData.length > 0){
           trickleFilteredData[trickleFilteredData.length-1].trickleData = { //attach trickle data to previous reading
             duration: obj.pump_duration,
@@ -333,6 +410,9 @@ export default {
       })
       return dataObj;
     },
+    stackedBarChartData: function(){
+      return 0;
+    },
     pieChartData: function(){
       var monthData = this.barChartData
       var pieData = {labels: [], data: [], colours: []}
@@ -352,22 +432,42 @@ export default {
     }
     
   },
+  watch: {
+    targetMonth(){
+      this.initLoadingProcess()
+    },
+    targetYear(){
+      this.initLoadingProcess()
+    }
+  },
   created() {
     //the component will only be created once the main data is loaded in parent component. No worry of globalData not being loaded.
+    let now = new Date()
+    this.targetMonth = this.months[now.getMonth()];
+    this.targetYear = now.getFullYear()
     this.initLoadingProcess()
   },
   methods: {
     initLoadingProcess(){
-      this.bpsData = this.globalData;
-      this.formatChartDates();
-      this.targetMonth = this.months[new Date().getMonth()];
+      this.isLoading = true
+      axios.get(config.apiBaseURL+`api/overview_data?month=${this.months.indexOf(this.targetMonth)+1}&year=${this.targetYear}`)
+      .then(res => {
+        this.bpsData = res.data.data;
+        this.formatChartDates();
 
-      var overviewRecords = this.filteredOverviewItems
-      if(overviewRecords.length > 0){
-          console.log(overviewRecords)
-          this.populateInstReadingsGraph(overviewRecords[0])  
-      }
-      this.isLoading = false; 
+        var overviewRecords = this.filteredOverviewItems
+        if(overviewRecords.length > 0){
+            console.log(overviewRecords)
+            this.populateInstReadingsGraph(overviewRecords[0])  
+        }
+        })
+      .catch(err => {
+        console.log("Couldn't connect to BPS api to fetch overview_data: " + err)
+      })
+      .finally(() => {
+        this.isLoading = false; 
+      })
+      
     },
     formatChartDates() {
       let datesArr = this.bpsData.map(obj => obj.timestamp);
@@ -378,7 +478,7 @@ export default {
     },
     formatDate(dateString) {
       let d = new Date(dateString);
-      var df = d.getDate() + "/" + (d.getMonth() + 1);
+      var df = d.getDate() + "/" + (d.getMonth() + 1)+"/"+ d.getFullYear();
       var t = d.toLocaleTimeString('default', {hour12:false}).substring(0,5);
       return [df,t];
     },
@@ -396,6 +496,11 @@ export default {
         }).finally(this.isLoadingInst = false)
        
     },
+    editNote(noteObj){
+      this.isLoadingInst = true
+      console.log(this.$buefy)
+      
+    },
     statsShiftDisplay(dir=0){
       var delta = 0
       if(dir==0){ //shift left
@@ -407,7 +512,6 @@ export default {
       this.overviewStatsIdx += delta
     },
     updateLineGraph(d){
-      console.log("Updating line graph "+this.truncateZeroFlow)
       this.chartData.datasets[0].data = []
       this.chartData.datasets[1].data = []
       this.chartData.labels = []

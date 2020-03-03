@@ -44,14 +44,14 @@ export default {
 		  }
     }
   }),
-  created(){
-  },
   watch: {
     chartObject: function(val){
       this.chartdata.labels = this.chartObject.labels;
       this.chartdata.datasets[0].data = this.chartObject.data;
       this.$data._chart.update();
     }
+  },
+  created(){
   },
   mounted () {
     this.chartdata.labels = this.chartObject.labels;

@@ -27,13 +27,13 @@ export default {
 				}
     }
   }),
-  created(){
-  },
   watch: {
     chartObject: function(val){
       this.prepareRender()
       this.$data._chart.update();
     }
+  },
+  created(){
   },
   mounted () {
     this.prepareRender()

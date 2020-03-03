@@ -11,7 +11,6 @@
 import Header from './components/layout/Header.vue'
 import TabViewSection from './components/TabViewSection.vue'
 import Footer from './components/layout/Footer.vue'
-import config from '@/config.json'
 
 export default {
   name: 'App',
