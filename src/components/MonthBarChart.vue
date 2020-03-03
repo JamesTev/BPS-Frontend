@@ -23,17 +23,35 @@ export default {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: false,
+      scales: {
+					xAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+              labelString: 'Day of the Month',
+              fontSize: 14
+            },
+					}],
+					yAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+              labelString: 'Cumulative Volume',
+              fontSize: 14
+						}
+					}]
+		  }
     }
   }),
-  created(){
-  },
   watch: {
     chartObject: function(val){
       this.chartdata.labels = this.chartObject.labels;
       this.chartdata.datasets[0].data = this.chartObject.data;
       this.$data._chart.update();
     }
+  },
+  created(){
   },
   mounted () {
     this.chartdata.labels = this.chartObject.labels;
