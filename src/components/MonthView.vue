@@ -134,8 +134,8 @@
       <div class="tile is-4  is-vertical is-parent">
         <div :class="mqBinding('sm', ['box', 'mobile-padding'])">
 
-          <div class="columns">
-            <div class="column is-6 is-flex-mobile is-3">
+          <div class="columns is-mobile">
+            <div class="column is-6">
               <p class="title is-3 is-size-3-mobile">
                 {{ targetMonth }} 
               </p>
@@ -166,7 +166,6 @@
               </b-field>
     
             </div>
-
           </div>
           
 
