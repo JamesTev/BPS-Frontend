@@ -11,13 +11,16 @@
         class="tile is-1 is-vertical is-parent"
       >
         <div class="tile is-child v-centre">
-          <b-button 
-            size="is-small" 
-            icon-left="edit" 
-            class="is-text"
+          <a
+            class="has-text-black"
             :class="overviewObject.note.length > 0 ? 'has-text-primary': ''"
             @click="toggleNoteView"
-          />
+          >
+            <b-icon
+              size="is-small"
+              icon="comment-dots"
+            />
+          </a>
         </div>
       </div>
       <div class="tile is-8 is-vertical is-parent">
@@ -54,7 +57,7 @@
               class="control"
             >
               <b-button
-                icon-left="edit"
+                icon-left="comment-dots"
                 :class="overviewObject.note.length > 0 ? 'has-text-primary': ''"
                 @click="toggleNoteView"
               />
@@ -147,7 +150,7 @@
       
       <div v-if="editingNote">
         <b-field
-          label="Note"
+          label="Update note"
         >
           <b-input
             v-model="editNoteText"
@@ -202,6 +205,9 @@ export default {
       editNoteText: "",
       processingNoteUpdate: false
     };
+  },
+  created(){
+    this.editNoteText = this.overviewObject.note
   },
   computed: {
     showNoteText() {

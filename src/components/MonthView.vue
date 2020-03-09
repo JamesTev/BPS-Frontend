@@ -44,8 +44,6 @@
       </p>
     </div>
   
-    
-
     <b-collapse class="card">
       <div
         slot="trigger" 
@@ -133,29 +131,102 @@
       class="tile is-ancestor"
       style="padding-top:30px;"
     >
-      <div class="tile is-4 is-vertical is-parent">
+      <div class="tile is-4  is-vertical is-parent">
         <div :class="mqBinding('sm', ['box', 'mobile-padding'])">
-          <p class="title is-3 is-size-3-mobile">
-            {{ targetMonth }} 
-            <!-- <span style="float:right">
-              <b-dropdown aria-role="list">
-                <button
-                  slot="trigger"
-                  class="button"
-                >
-                  <span>Tools</span>
-                  <b-icon icon="caret-down" />
-                </button>
 
-                <b-dropdown-item
-                  aria-role="listitem"
-                  class="has-text-weight-light"
-                >Reload items</b-dropdown-item>
-              </b-dropdown>
-            </span> -->
-          </p>
-          <p class="subtitle is-6 is-size-7-mobile has-text-weight-light">
-            Overview for the month
+          <div class="columns">
+            <div class="column is-6 is-flex-mobile is-3">
+              <p class="title is-3 is-size-3-mobile">
+                {{ targetMonth }} 
+              </p>
+              <p class="subtitle is-6 is-size-7-mobile has-text-weight-light">
+                Overview for the month
+              </p>
+            </div>
+            <div class="column is-6 is-flex-mobile has-text-right v-centre">
+              <p class="heading has-text-right is-7" style="margin-bottom:8px">toolbox</p>
+              <b-field position="is-right">
+                <b-radio-button v-model="constrainTool"
+                                native-value="sort"
+                                type="is-dark-blue">
+                  sort
+                </b-radio-button>
+
+                <b-radio-button v-model="constrainTool"
+                                native-value="notes"
+                                type="is-dark-blue">
+                  notes
+                </b-radio-button>
+
+                <b-radio-button v-model="constrainTool"
+                                native-value="hide"                                
+                                type="is-light">
+                  hide
+                </b-radio-button>
+              </b-field>
+    
+            </div>
+
+          </div>
+          
+
+          <div
+            class="field is-grouped is-grouped-left"
+            style="padding-top:0px; padding-bottom:5px"
+          >
+            <p
+              v-if="constrainTool=='sort'"
+              class="control"
+            >
+              <b-button
+                class="button"
+                :icon-left="sortDirection == 1 ? 'sort-amount-down' : 'sort-amount-up' "
+                @click="sortDirection *= -1"
+              />
+            </p>
+            
+            <p
+              v-if="constrainTool=='sort'"
+              class="control"
+            >
+              <span class="select">
+                <select v-model="sortCriterion">
+                  <option>date</option>
+                  <option>volume</option>
+                  <option>flow rate</option>
+                  <option>duration</option>
+                </select>
+              </span>
+            </p>
+            <p
+              v-if="constrainTool=='notes'"
+              class="control"
+            >
+              <b-button
+                icon-left="comment-dots"
+                :class="notesOnly ? 'is-success': ''"
+                @click="notesOnly = !notesOnly"
+              />
+            </p>
+
+            <p
+              v-if="constrainTool=='notes'"
+              class="control"
+            >
+              <input
+                v-model="noteSearchText"
+                type="search"
+                icon="search"
+                placeholder="search"
+                class="input"
+              >
+            </p>
+          </div>
+          <p
+            v-if="constrainTool!='hide'"
+            class=" subtitle is-7"
+          >
+            Showing {{ notesOnly ? 'only readings with notes': 'readings' }} sorted by {{ sortCriterion }} in {{ sortDirection == 1 ? 'descending' : 'ascending' }} order
           </p>
           
           <vue-custom-scrollbar
@@ -173,7 +244,6 @@
                 :data-loading="isLoadingInst"
                 :active-obj="activeTableItem"
                 @get-inst-readings="populateInstReadingsGraph"
-                @edit-note="editNote"
                 @delete-record="deleteRecord"
               />
             </div>
@@ -185,7 +255,7 @@
               type="is-dark-blue"
               :active="filteredOverviewItems.length == 0"
             >
-              No data yet for {{ targetMonth }} {{targetYear}} :(
+              No data yet for {{ targetMonth }} {{ targetYear }} :(
             </b-message>
           </section>
         </div>
@@ -211,8 +281,7 @@
                 v-model="truncateZeroFlow"
                 size="is-small"
                 type="is-dark-blue"
-                @click.native="updateLineGraph(activeTableItemReadings)"
-              >Truncate zero flow</b-checkbox>
+              >Truncate outlier flow</b-checkbox>
             </span>
           </p>
           <line-chart
@@ -282,8 +351,6 @@ import MonthViewTableItem from "./MonthViewTableItem.vue";
 import config from '@/config.json'
 import {generatePalette} from '@/colours.js'
 
-import { Toast } from 'buefy/dist/components/toast';
-
 export default {
   name: "MonthView",
   components: {
@@ -300,7 +367,14 @@ export default {
       isLoading: true,
       isLoadingInst: false,
       targetMonth: "January",
+      sortCriterion: "date",
+      notesOnly: false,
+      showSortOptions: true,
+      nOverviewPositions: 100,
+      sortDirection: 1,
       targetYear: 0,
+      constrainTool: 'hide',
+      noteSearchText: '',
       activeTableItem: {},
       activeTableItemReadings: {},
       summaryGraphType: "bar",
@@ -311,7 +385,7 @@ export default {
       barLabels: [],
       trickleThresholdLitres: 3,
       scrollSettings: {
-        maxScrollbarLength: 80,
+        maxScrollbarLength: 100,
         suppressScrollX: true
       },
       dateTimeTagClass: "",
@@ -329,6 +403,12 @@ export default {
         "November",
         "December"
       ],
+      keyMap: {
+        'volume': 'pump_volume',
+        'flow rate': 'avg_flow_rate',
+        'duration': 'pump_duration',
+        'date': 'timestamp'
+      },
       chartData: {
         labels: [],
         datasets: [
@@ -396,8 +476,9 @@ export default {
         }
         trickleFilteredData.push(obj)
       })
-      trickleFilteredData = trickleFilteredData.reverse()
-      return trickleFilteredData;
+      let sorted =  this.sortData(trickleFilteredData, this.keyMap[this.sortCriterion], this.sortDirection);
+      sorted = sorted.filter(obj => obj.note.length > 0 || !this.notesOnly)
+      return sorted.filter(obj => obj.note.toLowerCase().includes(this.noteSearchText.toLowerCase()) || this.constrainTool!='notes')
     },
     barChartData: function(){
       let now = new Date();
@@ -413,6 +494,7 @@ export default {
     stackedBarChartData: function(){
       return 0;
     },
+  
     pieChartData: function(){
       var monthData = this.barChartData
       var pieData = {labels: [], data: [], colours: []}
@@ -438,6 +520,9 @@ export default {
     },
     targetYear(){
       this.initLoadingProcess()
+    },
+    truncateZeroFlow(){
+      this.updateLineGraph(this.activeTableItemReadings)
     }
   },
   created() {
@@ -476,6 +561,10 @@ export default {
       });
       this.chartData.labels = datesArr;
     },
+    sortData(data, sortCriterion, sortDir){
+      let p = data.sort((a, b) => (a[sortCriterion] < b[sortCriterion]) ? sortDir : sortDir*-1)
+      return p //p.slice(0, nItems)
+    },
     formatDate(dateString) {
       let d = new Date(dateString);
       var df = d.getDate() + "/" + (d.getMonth() + 1)+"/"+ d.getFullYear();
@@ -496,11 +585,6 @@ export default {
         }).finally(this.isLoadingInst = false)
        
     },
-    editNote(noteObj){
-      this.isLoadingInst = true
-      console.log(this.$buefy)
-      
-    },
     statsShiftDisplay(dir=0){
       var delta = 0
       if(dir==0){ //shift left
@@ -515,17 +599,15 @@ export default {
       this.chartData.datasets[0].data = []
       this.chartData.datasets[1].data = []
       this.chartData.labels = []
-      var c = 0
       d = (Array.isArray(d)) ? d : [d]
 
-      d.forEach((element) => {
-        if(this.truncateZeroFlow && parseFloat(element.inst_flow_rate) < 0.5 && c==(d.length - 1)){
+      d.forEach((element, idx) => {
+        if(this.truncateZeroFlow && parseFloat(element.inst_flow_rate) < 2 && idx>=(d.length - 1)){
           return; // skip iteration
         }
         this.chartData.datasets[1].data.push(element.inst_flow_rate) //inst_flow
         this.chartData.datasets[0].data.push(element.inst_volume); //inst_vol
         this.chartData.labels.push(this.tOffsetFormat(element.t_offset)); //t_offset
-        c+= 1
       });
       this.$refs.lineChart._data._chart.update(); // ! WORKAROUND. TODO: figure out reactive property. this works with barchart?
     },
