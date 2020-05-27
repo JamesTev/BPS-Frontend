@@ -65,7 +65,7 @@
             
             <p class="control">
               <a
-                v-if="activeButtonType == 'view'"
+                v-if="buttonType == 'view'"
                 type="submit"
                 :disabled="enabled || activeObj.ID==overviewObject.ID"
                 class="button is-success"
@@ -74,6 +74,17 @@
                 @click="$emit('get-inst-readings', overviewObject)"
               >
                 view
+                
+              </a>
+              <a
+                v-if="buttonType == 'delete'"
+                type="submit"
+                class="button is-danger"
+           
+                :loading="dataLoading && activeObj.ID==overviewObject.ID"
+                @click="$emit('delete-record', overviewObject)"
+              >
+                delete
                 
               </a>
             </p>
@@ -195,11 +206,11 @@ export default {
     overviewObject: Object,
     enabled: Boolean,
     activeObj: Object,
-    dataLoading: Boolean
+    dataLoading: Boolean,
+    buttonType: String
   },
   data() {
     return {
-      activeButtonType: "view",
       showNote: false,
       editingNote: false,
       editNoteText: "",

@@ -159,12 +159,11 @@
                 </b-radio-button>
 
                 <b-radio-button v-model="constrainTool"
-                                native-value="hide"                                
-                                type="is-light">
-                  hide
+                                native-value="delete"
+                                type="is-dark-blue">
+                  <b-icon icon="trash" style="margin-left: 0"/>
                 </b-radio-button>
               </b-field>
-    
             </div>
           </div>
           
@@ -222,7 +221,7 @@
             </p>
           </div>
           <p
-            v-if="constrainTool!='hide'"
+            v-if="constrainTool!='delete'"
             class=" subtitle is-7"
           >
             Showing {{ notesOnly ? 'only readings with notes': 'readings' }} sorted by {{ sortCriterion }} in {{ sortDirection == 1 ? 'descending' : 'ascending' }} order
@@ -239,6 +238,7 @@
             >
               <month-view-table-item
                 :overview-object="obj"
+                :button-type="overviewButtonType"
                 :enabled.sync="isLoadingInst"
                 :data-loading="isLoadingInst"
                 :active-obj="activeTableItem"
@@ -372,7 +372,7 @@ export default {
       nOverviewPositions: 100,
       sortDirection: 1,
       targetYear: 0,
-      constrainTool: 'hide',
+      constrainTool: 'sort',
       noteSearchText: '',
       activeTableItem: {},
       activeTableItemReadings: {},
@@ -445,6 +445,9 @@ export default {
         return this.filteredOverviewItems.reduce((sum, d) => sum + d.pump_duration/60, 0);
       }
       return 0;
+    },
+    overviewButtonType: function(){
+        return this.constrainTool == 'delete' ? 'delete':'view'
     },
     volWeightedFlowAverage: function (){
       if (!this.isLoading) {
@@ -623,21 +626,24 @@ export default {
       return formatted_str
     }, 
     deleteRecord(overviewObj){
-     
+      let _this = this
       this.$dialog.confirm({
           title: 'Deleting record',
-          message: 'Are you sure you want to <b>delete</b> your account? This action cannot be undone.',
+          message: 'Confirm intention to <b>delete</b> this record? This action cannot be undone.',
           confirmText: 'Delete',
           type: 'is-danger',
           hasIcon: true,
-          onConfirm: () => this.$toast.open('Account deleted!')
+          onConfirm: function() {
+            axios.delete(config.apiBaseURL+`api/${overviewObj.ID}`).then(function(res) {
+              let d = res.data;
+              console.log(d)
+              _this.initLoadingProcess(); //reload data
+              _this.$toast.open('Record deleted!')
+            }).catch((err)=>{
+               alert("Failed to delete record. Got error: "+err)
+            })
+          } 
       })
-            
-      // axios.delete(config.apiBaseURL+`api/${overviewObj.ID}`).then(res => {
-      //   let d = res.data;
-      //   this.initLoadingProcess(); //reload data
-      //   alert("Record deleted!")
-      //   })
     },
     mqBinding(breakSize, classOptions){
       var sizeClasses = {'sm':0, 'md':1, 'lg':2}
